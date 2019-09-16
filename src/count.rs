@@ -13,8 +13,10 @@ pub struct Counter<'a, U> { value: Value, units: &'a HashMap<U, Value> }
 impl<'a, U> Counter<'a, U> where
     U: Eq + Hash
 {
-    pub fn new(units: &'a HashMap<U, Value>) -> Self { Counter { value: 0, units: units } }
-
+    pub fn new(units: &'a HashMap<U, Value>) -> Self {
+        Self { value: 0, units: units }
+    }
+    pub fn value(&self) -> Value { self.value }
     pub fn value_of(&self, unit: U) -> Option<Value> {
         self.units.get(&unit).cloned()
     }
@@ -30,6 +32,4 @@ impl<'a, U> Counter<'a, U> where
     pub fn sub(&mut self, num: Value, unit: U) {
         self.add(-num, unit);
     }
-
-    pub fn value(&self) -> Value { self.value }
 }

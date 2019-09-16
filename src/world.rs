@@ -7,5 +7,7 @@ pub struct World {
 
 
 impl World {
-    pub fn new() -> Self { World { time: Time::new() } }
+    pub fn new() -> Self {
+        Self { time: Time::new() }
+    }
 }

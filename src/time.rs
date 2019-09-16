@@ -37,7 +37,7 @@ pub struct Time { pub current: TimeCounter }
 
 impl Time {
     pub fn new() -> Self {
-        Time { current: Counter::new(&UNITS) }
+        Self { current: Counter::new(&UNITS) }
     }
 
     pub fn distribute(&self) -> Vec<(Value, UnitTime)> {
