@@ -1,8 +1,8 @@
 use lazy_static::lazy_static;
 use std::collections::HashMap;
-use super::count::{Counter, Value};
 
-use crate::UnitTime::*;
+use crate::count::{Counter, Value};
+use crate::time::UnitTime::*;
 
 
 #[derive(Hash, Eq, PartialEq, Debug, Copy, Clone)]

@@ -1,4 +1,4 @@
-use crate::time::Time;
+use super::time::Time;
 
 
 pub struct World {

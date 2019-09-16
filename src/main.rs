@@ -40,12 +40,9 @@
 // }
 
 
-mod time;
-mod world;
-mod count;
 
-use world::World;
-use time::UnitTime;
+use lib::world::World;
+use lib::time::UnitTime;
 
 
 
