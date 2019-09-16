@@ -7,25 +7,25 @@ use crate::UnitTime::*;
 
 #[derive(Hash, Eq, PartialEq, Debug, Copy, Clone)]
 pub enum UnitTime {
-    SECOND,
-    MINUTE,
-    HOUR,
-    DAY,
-    WEEK,
-    MONTH,
-    YEAR
+    Second,
+    Minute,
+    Hour,
+    Day,
+    Week,
+    Month,
+    Year
 }
 
 lazy_static! {
     static ref UNITS: HashMap<UnitTime, Value> = {
         let mut m = HashMap::new();
-        m.insert(SECOND, 1);
-        m.insert(MINUTE, 60);
-        m.insert(HOUR, 3600);
-        m.insert(DAY, 86400);
-        m.insert(WEEK, 604800);
-        m.insert(MONTH, 2629800);
-        m.insert(YEAR, 31557600);
+        m.insert(Second, 1);
+        m.insert(Minute, 60);
+        m.insert(Hour, 3600);
+        m.insert(Day, 86400);
+        m.insert(Week, 604800);
+        m.insert(Month, 2629800);
+        m.insert(Year, 31557600);
         m
     };
 }

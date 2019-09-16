@@ -51,11 +51,11 @@ use time::UnitTime;
 
 fn main() {
     let mut world = World::new();
-    world.time.current.add(1992, UnitTime::YEAR);
-    world.time.current.add(2, UnitTime::MONTH);
-    world.time.current.add(1, UnitTime::DAY);
-    world.time.current.add(2, UnitTime::HOUR);
-    world.time.current.add(2, UnitTime::WEEK);
+    world.time.current.add(1992, UnitTime::Year);
+    world.time.current.add(2, UnitTime::Month);
+    world.time.current.add(1, UnitTime::Day);
+    world.time.current.add(2, UnitTime::Hour);
+    world.time.current.add(2, UnitTime::Week);
     println!("{:?}", world.time.distribute());
     println!("{:?}", world.time.current.value());
 }
