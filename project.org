@@ -1,0 +1,8 @@
+* Time/Date tracker
+** Global State
+  - Schedule/track status effects
+  - Manage world time
+** Combat
+  - Auto update time and status effects
+* Save and store state
+  Serialize/deserialize
