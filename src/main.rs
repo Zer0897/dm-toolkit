@@ -43,16 +43,17 @@
 
 use lib::world::World;
 use lib::time::UnitTime;
+use lib::count::Counter;
 
 
 
 fn main() {
     let mut world = World::new();
-    world.time.current.add(1992, UnitTime::Year);
-    world.time.current.add(2, UnitTime::Month);
-    world.time.current.add(1, UnitTime::Day);
-    world.time.current.add(2, UnitTime::Hour);
-    world.time.current.add(2, UnitTime::Week);
+    world.time.add(1992, UnitTime::Year);
+    world.time.add(2, UnitTime::Month);
+    world.time.add(1, UnitTime::Day);
+    world.time.add(2, UnitTime::Hour);
+    world.time.add(2, UnitTime::Week);
     println!("{:?}", world.time.distribute());
-    println!("{:?}", world.time.current.value());
+    println!("{:?}", world.time.value());
 }

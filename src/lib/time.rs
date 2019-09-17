@@ -30,32 +30,47 @@ lazy_static! {
     };
 }
 
-type TimeCounter = Counter<'static, UnitTime>;
-
 
 /// A tool for managing time and its units.
-pub struct Time { pub current: TimeCounter }
+pub struct Time { pub value: Value }
+
+impl Counter for Time {
+    type Unit = UnitTime;
+
+    fn value(&self) -> Value {
+        self.value
+    }
+    fn mut_value(&mut self) -> &mut Value {
+        &mut self.value
+    }
+    /// The base value of given `unit`.
+    fn value_of(unit: Self::Unit) -> Option<Value> {
+        UNITS.get(&unit).cloned()
+    }
+}
 
 impl Time {
     pub fn new() -> Self {
-        Self { current: Counter::new(&UNITS) }
+        Self { value: 0 }
     }
-    /// Break up current time into applicable units.
+    /// Break up value time into applicable units.
     /// # Example
     /// ```
-    /// let mut time = Time::new();
-    /// time.current.add(3, Day);
-    /// time.current.add(1, Second);
-    /// time.current.add(2, Hour);
+    /// use lib::count::Counter;
+    /// use lib::time::UnitTime::*;
+    /// use lib::time::*;
     ///
-    /// assert_eq!(time.distribute(), vec![(3, Day), (2, Hour), (1, Second)]);
+    /// let mut time = Time::new();
+    /// time.add(61, Second);
+    ///
+    /// assert_eq!(time.distribute(), vec![(1, Minute), (1, Second)]);
     /// ```
     pub fn distribute(&self) -> Vec<(Value, UnitTime)> {
         let mut choices: Vec<(&UnitTime, &Value)> = UNITS.iter().collect();
         choices.sort_by_key(|(_, v)| std::cmp::Reverse(*v));
 
         let mut out = Vec::new();
-        let mut total = self.current.value();
+        let mut total = self.value();
         for (unit, value) in choices.into_iter() {
             let amount = total / value;
             if amount > 0 {
@@ -75,10 +90,18 @@ mod tests {
     #[test]
     fn test_distribute() {
         let mut time = Time::new();
-        time.current.add(3, Day);
-        time.current.add(1, Second);
-        time.current.add(2, Hour);
+        time.add(3, Day);
+        time.add(1, Second);
+        time.add(2, Hour);
 
         assert_eq!(time.distribute(), vec![(3, Day), (2, Hour), (1, Second)]);
+    }
+
+    #[test]
+    fn test_distribute_from_one_unit() {
+        let mut time = Time::new();
+        time.add(61, Second);
+
+        assert_eq!(time.distribute(), vec![(1, Minute), (1, Second)]);
     }
 }
