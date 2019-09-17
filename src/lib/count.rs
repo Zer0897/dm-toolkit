@@ -33,3 +33,99 @@ impl<'a, U> Counter<'a, U> where
         self.add(-num, unit);
     }
 }
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn foo_units() -> HashMap<String, Value> {
+        let mut m = HashMap::new();
+        m.insert("one".to_owned(), 1);
+        m.insert("two".to_owned(), 2);
+        m
+    }
+
+    #[test]
+    fn test_add_twice() {
+        let units = foo_units();
+        let mut counter = Counter::new(&units);
+
+        counter.add(1, "one".to_owned());
+        counter.add(1, "one".to_owned());
+        assert_eq!(counter.value(), 2);
+    }
+
+    #[test]
+    fn test_add_two() {
+        let units = foo_units();
+        let mut counter = Counter::new(&units);
+
+        counter.add(2, "one".to_owned());
+        assert_eq!(counter.value(), 2);
+    }
+
+    #[test]
+    fn test_set_value() {
+        let units = foo_units();
+        let mut counter = Counter::new(&units);
+
+        counter.set(2, "one".to_owned());
+        assert_eq!(counter.value(), 2);
+
+        counter.set(1, "one".to_owned());
+        assert_eq!(counter.value(), 1);
+    }
+
+    #[test]
+    fn test_convert_value() {
+        let units = foo_units();
+        let mut counter = Counter::new(&units);
+
+        counter.set(100, "one".to_owned());
+        assert_eq!(counter.to("two".to_owned()), Some(50));
+
+        counter.set(100, "two".to_owned());
+        assert_eq!(counter.to("one".to_owned()), Some(200));
+    }
+
+    #[test]
+    fn test_subtract() {
+        let units = foo_units();
+        let mut counter = Counter::new(&units);
+
+        counter.set(2, "one".to_owned());
+        counter.sub(1, "one".to_owned());
+        assert_eq!(counter.value(), 1);
+    }
+
+    #[test]
+    fn test_sub_is_same_as_neg_add() {
+        let units = foo_units();
+        let mut counter = Counter::new(&units);
+
+        counter.set(2, "one".to_owned());
+        counter.sub(1, "one".to_owned());
+        counter.add(-1, "one".to_owned());
+        assert_eq!(counter.value(), 0);
+    }
+
+    #[test]
+    fn test_add_is_same_as_neg_sub() {
+        let units = foo_units();
+        let mut counter = Counter::new(&units);
+
+        counter.add(1, "one".to_owned());
+        counter.sub(-1, "one".to_owned());
+        assert_eq!(counter.value(), 2);
+    }
+
+    #[test]
+    fn test_value_of_unit_matches_conversion() {
+        let units = foo_units();
+        let mut counter = Counter::new(&units);
+
+        counter.add(1, "two".to_owned());
+        assert_eq!(counter.value(), counter.value_of("two".to_owned()).unwrap());
+    }
+}
