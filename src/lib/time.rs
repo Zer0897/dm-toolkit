@@ -39,7 +39,6 @@ impl Time {
     pub fn new() -> Self {
         Self { current: Counter::new(&UNITS) }
     }
-
     pub fn distribute(&self) -> Vec<(Value, UnitTime)> {
         let mut choices: Vec<(&UnitTime, &Value)> = UNITS.iter().collect();
         choices.sort_by_key(|(_, v)| std::cmp::Reverse(*v));
@@ -54,5 +53,21 @@ impl Time {
             }
         }
         out
+    }
+}
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_distribute() {
+        let mut time = Time::new();
+        time.current.add(3, Day);
+        time.current.add(1, Second);
+        time.current.add(2, Hour);
+
+        assert_eq!(time.distribute(), vec![(3, Day), (2, Hour), (1, Second)]);
     }
 }
