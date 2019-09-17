@@ -6,6 +6,19 @@ use std::hash::Hash;
 pub type Value = i64;
 
 
+/// A tool for counting with the given `units`. Takes a hashmap of the unit identifier and its
+/// value.
+/// # Example
+/// ```
+/// let mut units = HashMap::new();
+/// m.insert("one".to_owned(), 1);
+/// m.insert("two".to_owned(), 2);
+///
+/// let mut counter = Counter::new(&units);
+///
+/// counter.add(1, "two".to_owned());
+/// assert_eq!(counter.value(), 2);
+/// ```
 #[derive(Clone)]
 pub struct Counter<'a, U> { value: Value, units: &'a HashMap<U, Value> }
 
@@ -16,19 +29,37 @@ impl<'a, U> Counter<'a, U> where
     pub fn new(units: &'a HashMap<U, Value>) -> Self {
         Self { value: 0, units: units }
     }
+    /// The current value of the counter.
     pub fn value(&self) -> Value { self.value }
+    /// The base value of given `unit`.
     pub fn value_of(&self, unit: U) -> Option<Value> {
         self.units.get(&unit).cloned()
     }
+    /// The number of `unit`s that fit into the current value.
+    /// # Example
+    /// ```
+    /// let mut units = HashMap::new();
+    /// m.insert("one".to_owned(), 1);
+    /// m.insert("two".to_owned(), 2);
+    ///
+    /// counter.set(100, "one".to_owned());
+    /// assert_eq!(counter.to("two".to_owned()), Some(50));
+
+    /// counter.set(100, "two".to_owned());
+    /// assert_eq!(counter.to("one".to_owned()), Some(200));
+    /// ```
     pub fn to(&self, unit: U) -> Option<Value> {
         self.value_of(unit).map(|v| self.value / v)
     }
+    /// Set the current value equal to `num` of `units`.
     pub fn set(&mut self, num: Value, unit: U) {
         self.value = self.value_of(unit).map(|v| num * v).unwrap();
     }
+    /// Add the current value to `num` of `units`.
     pub fn add(&mut self, num: Value, unit: U) {
         self.value += self.value_of(unit).map(|v| num * v).unwrap();
     }
+    /// Subtract the current value from `num` of `units`.
     pub fn sub(&mut self, num: Value, unit: U) {
         self.add(-num, unit);
     }
