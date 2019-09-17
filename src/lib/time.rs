@@ -91,7 +91,8 @@ impl Time {
 #[derive(PartialEq, Eq, Debug, Clone)]
 pub struct Event {
     pub start: Time,
-    pub end: Time
+    pub end: Time,
+    pub id: u64
 }
 
 pub struct Schedule {
@@ -112,8 +113,12 @@ impl Schedule {
         event.start <= self.time && event.end >= self.time
     }
 
+    pub fn get_all(&self) -> &Vec<Event> {
+        &self.events
+    }
+
     pub fn get_active(&self) -> Vec<&Event> {
-        self.events.iter()
+        self.get_all().iter()
             .filter(|e| self.is_active(e))
             .collect()
     }
@@ -168,7 +173,7 @@ mod tests {
         let mut schedule = Schedule::new();
         let start = Time::from(1, Second);
         let end = Time::from(2, Second);
-        schedule.push(Event {start: start, end: end});
+        schedule.push(Event {start: start, end: end, id: 1});
         assert_eq!(schedule.get_active(), Vec::<&Event>::new());
     }
 
@@ -177,7 +182,7 @@ mod tests {
         let mut schedule = Schedule::new();
         let start = Time::from(1, Second);
         let end = Time::from(2, Second);
-        let event = Event {start: start, end: end};
+        let event = Event {start: start, end: end, id: 1};
         schedule.push(event.clone());
         schedule.time.add(1, Second);
         assert_eq!(schedule.get_active(), vec![&event]);
@@ -188,7 +193,7 @@ mod tests {
         let mut schedule = Schedule::new();
         let start = Time::from(1, Second);
         let end = Time::from(2, Second);
-        let event = Event {start: start, end: end};
+        let event = Event {start: start, end: end, id: 1};
         schedule.push(event.clone());
         schedule.time.add(3, Second);
         assert_eq!(schedule.get_active(), Vec::<&Event>::new());
