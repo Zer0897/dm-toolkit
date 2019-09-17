@@ -1,5 +1,4 @@
 use std::cmp::Eq;
-use std::collections::HashMap;
 use std::hash::Hash;
 
 
@@ -41,6 +40,7 @@ pub trait Counter {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::collections::HashMap;
 
     struct FooCounter {
         value: Value

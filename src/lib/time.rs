@@ -32,6 +32,7 @@ lazy_static! {
 
 
 /// A tool for managing time and its units.
+#[derive(Eq, PartialEq, Ord, PartialOrd, Debug, Clone)]
 pub struct Time { pub value: Value }
 
 impl Counter for Time {
@@ -49,9 +50,13 @@ impl Counter for Time {
     }
 }
 
+
 impl Time {
     pub fn new() -> Self {
         Self { value: 0 }
+    }
+    pub fn from(num: Value, unit: UnitTime) -> Self {
+        Self { value: Self::value_of(unit).unwrap() * num }
     }
     /// Break up value time into applicable units.
     /// # Example
@@ -83,6 +88,38 @@ impl Time {
 }
 
 
+#[derive(PartialEq, Eq, Debug, Clone)]
+pub struct Event {
+    pub start: Time,
+    pub end: Time
+}
+
+pub struct Schedule {
+    pub time: Time,
+    events: Vec<Event>
+}
+
+impl Schedule {
+    pub fn new() -> Self {
+        Self { time: Time::new(), events: Vec::new() }
+    }
+
+    pub fn push(&mut self, event: Event) {
+        self.events.push(event)
+    }
+
+    pub fn is_active(&self, event: &Event) -> bool {
+        event.start <= self.time && event.end >= self.time
+    }
+
+    pub fn get_active(&self) -> Vec<&Event> {
+        self.events.iter()
+            .filter(|e| self.is_active(e))
+            .collect()
+    }
+}
+
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -103,5 +140,57 @@ mod tests {
         time.add(61, Second);
 
         assert_eq!(time.distribute(), vec![(1, Minute), (1, Second)]);
+    }
+
+    #[test]
+    fn test_from_one_unit() {
+        let time = Time::from(61, Second);
+        assert_eq!(time.distribute(), vec![(1, Minute), (1, Second)]);
+    }
+
+    #[test]
+    fn test_time_compare_gt() {
+        assert_eq!(Time::from(1, Second) > Time::new(), true);
+    }
+
+    #[test]
+    fn test_time_compare_lt() {
+        assert_eq!(Time::new() < Time::from(1, Second), true);
+    }
+
+    #[test]
+    fn test_time_compare_eq() {
+        assert_eq!(Time::from(1, Second) == Time::from(1, Second), true);
+    }
+
+    #[test]
+    fn test_schedule_not_active_before_time() {
+        let mut schedule = Schedule::new();
+        let start = Time::from(1, Second);
+        let end = Time::from(2, Second);
+        schedule.push(Event {start: start, end: end});
+        assert_eq!(schedule.get_active(), Vec::<&Event>::new());
+    }
+
+    #[test]
+    fn test_schedule_active_in_time() {
+        let mut schedule = Schedule::new();
+        let start = Time::from(1, Second);
+        let end = Time::from(2, Second);
+        let event = Event {start: start, end: end};
+        schedule.push(event.clone());
+        schedule.time.add(1, Second);
+        assert_eq!(schedule.get_active(), vec![&event]);
+    }
+
+    #[test]
+    fn test_schedule_not_active_after_time() {
+        let mut schedule = Schedule::new();
+        let start = Time::from(1, Second);
+        let end = Time::from(2, Second);
+        let event = Event {start: start, end: end};
+        schedule.push(event.clone());
+        schedule.time.add(3, Second);
+        assert_eq!(schedule.get_active(), Vec::<&Event>::new());
     }
 }
