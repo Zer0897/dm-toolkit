@@ -61,9 +61,9 @@ impl Time {
     /// Break up value time into applicable units.
     /// # Example
     /// ```
-    /// use lib::count::Counter;
-    /// use lib::time::UnitTime::*;
-    /// use lib::time::*;
+    /// use dm_tools::count::Counter;
+    /// use dm_tools::time::UnitTime::*;
+    /// use dm_tools::time::*;
     ///
     /// let mut time = Time::new();
     /// time.add(61, Second);

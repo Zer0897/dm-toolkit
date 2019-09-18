@@ -1,14 +1,5 @@
-[package]
-name = "dm-toolkit"
-version = "0.1.0"
-authors = ["Noah <noah@coronasoftware.net>"]
-edition = "2018"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-[lib]
-name = "lib"
-path = "src/lib/mod.rs"
-
-
-[dependencies]
-lazy_static = "1.4.0"
+[workspace]
+members = [
+    "dm-tools",
+    "dnd-toolkit"
+]
