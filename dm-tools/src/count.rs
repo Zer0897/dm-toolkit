@@ -1,9 +1,7 @@
 use std::cmp::Eq;
 use std::hash::Hash;
 
-
 pub type Value = i64;
-
 
 /// A tool for counting with the given `units`.
 pub trait Counter {
@@ -19,7 +17,7 @@ pub trait Counter {
     fn value_of(unit: Self::Unit) -> Option<Value>;
 
     /// The number of `unit`s that fit into the current value.
-    fn to(&self, unit: Self::Unit) -> Option<Value> {
+    fn as_unit(&self, unit: Self::Unit) -> Option<Value> {
         Self::value_of(unit).map(|v| self.value() / v)
     }
     /// Set the current value equal to `num` of `units`.
@@ -36,14 +34,13 @@ pub trait Counter {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
     use std::collections::HashMap;
 
     struct FooCounter {
-        value: Value
+        value: Value,
     }
 
     impl Counter for FooCounter {
@@ -97,10 +94,10 @@ mod tests {
         let mut counter = FooCounter { value: 0 };
 
         counter.set(100, "one");
-        assert_eq!(counter.to("two"), Some(50));
+        assert_eq!(counter.as_unit("two"), Some(50));
 
         counter.set(100, "two");
-        assert_eq!(counter.to("one"), Some(200));
+        assert_eq!(counter.as_unit("one"), Some(200));
     }
 
     #[test]
