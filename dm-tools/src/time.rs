@@ -1,6 +1,3 @@
-use lazy_static::lazy_static;
-use std::collections::HashMap;
-
 use crate::count::{Counter, Value};
 use crate::time::UnitTime::*;
 
@@ -13,20 +10,6 @@ pub enum UnitTime {
     Week,
     Month,
     Year,
-}
-
-lazy_static! {
-    static ref UNITS: HashMap<UnitTime, Value> = {
-        let mut m = HashMap::new();
-        m.insert(Second, 1);
-        m.insert(Minute, 60);
-        m.insert(Hour, 3600);
-        m.insert(Day, 86400);
-        m.insert(Week, 604800);
-        m.insert(Month, 2629800);
-        m.insert(Year, 31557600);
-        m
-    };
 }
 
 /// A tool for managing time and its units.
@@ -45,8 +28,16 @@ impl Counter for Time {
         &mut self.value
     }
     /// The base value of given `unit`.
-    fn value_of(unit: Self::Unit) -> Option<Value> {
-        UNITS.get(&unit).cloned()
+    fn value_of(unit: Self::Unit) -> Value {
+        match unit {
+            Second => 1,
+            Minute => 60,
+            Hour => 3600,
+            Day => 86400,
+            Week => 604800,
+            Month => 2629800,
+            Year => 31557600,
+        }
     }
 }
 
@@ -56,36 +47,24 @@ impl Time {
     }
     pub fn from(num: Value, unit: UnitTime) -> Self {
         Self {
-            value: Self::value_of(unit).unwrap() * num,
+            value: Self::value_of(unit) * num,
         }
     }
-    /// Break up value time into applicable units.
-    /// # Example
-    /// ```
-    /// use dm_tools::count::Counter;
-    /// use dm_tools::time::UnitTime::*;
-    /// use dm_tools::time::*;
-    ///
-    /// let mut time = Time::new();
-    /// time.add(61, Second);
-    ///
-    /// assert_eq!(time.distribute(), vec![(1, Minute), (1, Second)]);
-    /// ```
-    pub fn distribute(&self) -> Vec<(Value, UnitTime)> {
-        let mut choices: Vec<(&UnitTime, &Value)> = UNITS.iter().collect();
-        choices.sort_by_key(|(_, v)| std::cmp::Reverse(*v));
+    // pub fn distribute(&self) -> Vec<(Value, UnitTime)> {
+    //     let mut choices: Vec<(&UnitTime, &Value)> = UNITS.iter().collect();
+    //     choices.sort_by_key(|(_, v)| std::cmp::Reverse(*v));
 
-        let mut out = Vec::new();
-        let mut total = self.value();
-        for (unit, value) in choices.into_iter() {
-            let amount = total / value;
-            if amount > 0 {
-                out.push((amount, *unit));
-                total -= amount * value;
-            }
-        }
-        out
-    }
+    //     let mut out = Vec::new();
+    //     let mut total = self.value();
+    //     for (unit, value) in choices.into_iter() {
+    //         let amount = total / value;
+    //         if amount > 0 {
+    //             out.push((amount, *unit));
+    //             total -= amount * value;
+    //         }
+    //     }
+    //     out
+    // }
 }
 
 #[derive(PartialEq, Eq, Debug, Clone)]
@@ -131,30 +110,6 @@ impl Schedule {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn test_distribute() {
-        let mut time = Time::new();
-        time.add(3, Day);
-        time.add(1, Second);
-        time.add(2, Hour);
-
-        assert_eq!(time.distribute(), vec![(3, Day), (2, Hour), (1, Second)]);
-    }
-
-    #[test]
-    fn test_distribute_from_one_unit() {
-        let mut time = Time::new();
-        time.add(61, Second);
-
-        assert_eq!(time.distribute(), vec![(1, Minute), (1, Second)]);
-    }
-
-    #[test]
-    fn test_from_one_unit() {
-        let time = Time::from(61, Second);
-        assert_eq!(time.distribute(), vec![(1, Minute), (1, Second)]);
-    }
 
     #[test]
     fn test_time_compare_gt() {
