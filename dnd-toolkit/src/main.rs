@@ -15,7 +15,6 @@
 //     duration: u32
 // }
 
-
 // struct Creature {
 //     name: String,
 //     health: i32,
@@ -32,20 +31,15 @@
 // impl Creature {
 // }
 
-
 // struct CombatState {
 //     participants: Vec<Creature>,
 //     round: u32,
 //     status_effects: Vec<StatusEffect>
 // }
 
-
-
-use dm_tools::world::World;
-use dm_tools::time::UnitTime;
 use dm_tools::count::Counter;
-
-
+use dm_tools::time::UnitTime;
+use dm_tools::world::World;
 
 fn main() {
     let mut world = World::new();

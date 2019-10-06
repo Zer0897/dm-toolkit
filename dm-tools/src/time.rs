@@ -4,7 +4,6 @@ use std::collections::HashMap;
 use crate::count::{Counter, Value};
 use crate::time::UnitTime::*;
 
-
 #[derive(Hash, Eq, PartialEq, Debug, Copy, Clone)]
 pub enum UnitTime {
     Second,
@@ -13,7 +12,7 @@ pub enum UnitTime {
     Day,
     Week,
     Month,
-    Year
+    Year,
 }
 
 lazy_static! {
@@ -30,10 +29,11 @@ lazy_static! {
     };
 }
 
-
 /// A tool for managing time and its units.
 #[derive(Eq, PartialEq, Ord, PartialOrd, Debug, Clone)]
-pub struct Time { pub value: Value }
+pub struct Time {
+    pub value: Value,
+}
 
 impl Counter for Time {
     type Unit = UnitTime;
@@ -50,13 +50,14 @@ impl Counter for Time {
     }
 }
 
-
 impl Time {
     pub fn new() -> Self {
         Self { value: 0 }
     }
     pub fn from(num: Value, unit: UnitTime) -> Self {
-        Self { value: Self::value_of(unit).unwrap() * num }
+        Self {
+            value: Self::value_of(unit).unwrap() * num,
+        }
     }
     /// Break up value time into applicable units.
     /// # Example
@@ -87,22 +88,24 @@ impl Time {
     }
 }
 
-
 #[derive(PartialEq, Eq, Debug, Clone)]
 pub struct Event {
     pub start: Time,
     pub end: Time,
-    pub id: u64
+    pub id: u64,
 }
 
 pub struct Schedule {
     pub time: Time,
-    events: Vec<Event>
+    events: Vec<Event>,
 }
 
 impl Schedule {
     pub fn new() -> Self {
-        Self { time: Time::new(), events: Vec::new() }
+        Self {
+            time: Time::new(),
+            events: Vec::new(),
+        }
     }
 
     pub fn push(&mut self, event: Event) {
@@ -118,12 +121,12 @@ impl Schedule {
     }
 
     pub fn get_active(&self) -> Vec<&Event> {
-        self.get_all().iter()
+        self.get_all()
+            .iter()
             .filter(|e| self.is_active(e))
             .collect()
     }
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -173,7 +176,11 @@ mod tests {
         let mut schedule = Schedule::new();
         let start = Time::from(1, Second);
         let end = Time::from(2, Second);
-        schedule.push(Event {start: start, end: end, id: 1});
+        schedule.push(Event {
+            start: start,
+            end: end,
+            id: 1,
+        });
         assert_eq!(schedule.get_active(), Vec::<&Event>::new());
     }
 
@@ -182,7 +189,11 @@ mod tests {
         let mut schedule = Schedule::new();
         let start = Time::from(1, Second);
         let end = Time::from(2, Second);
-        let event = Event {start: start, end: end, id: 1};
+        let event = Event {
+            start: start,
+            end: end,
+            id: 1,
+        };
         schedule.push(event.clone());
         schedule.time.add(1, Second);
         assert_eq!(schedule.get_active(), vec![&event]);
@@ -193,7 +204,11 @@ mod tests {
         let mut schedule = Schedule::new();
         let start = Time::from(1, Second);
         let end = Time::from(2, Second);
-        let event = Event {start: start, end: end, id: 1};
+        let event = Event {
+            start: start,
+            end: end,
+            id: 1,
+        };
         schedule.push(event.clone());
         schedule.time.add(3, Second);
         assert_eq!(schedule.get_active(), Vec::<&Event>::new());

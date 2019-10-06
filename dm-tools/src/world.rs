@@ -1,10 +1,8 @@
 use super::time::Time;
 
-
 pub struct World {
-    pub time: Time
+    pub time: Time,
 }
-
 
 impl World {
     pub fn new() -> Self {
