@@ -50,21 +50,6 @@ impl Time {
             value: Self::value_of(unit) * num,
         }
     }
-    // pub fn distribute(&self) -> Vec<(Value, UnitTime)> {
-    //     let mut choices: Vec<(&UnitTime, &Value)> = UNITS.iter().collect();
-    //     choices.sort_by_key(|(_, v)| std::cmp::Reverse(*v));
-
-    //     let mut out = Vec::new();
-    //     let mut total = self.value();
-    //     for (unit, value) in choices.into_iter() {
-    //         let amount = total / value;
-    //         if amount > 0 {
-    //             out.push((amount, *unit));
-    //             total -= amount * value;
-    //         }
-    //     }
-    //     out
-    // }
 }
 
 #[derive(PartialEq, Eq, Debug, Clone)]
@@ -74,12 +59,12 @@ pub struct Event {
     pub id: u64,
 }
 
-pub struct Schedule {
+pub struct Scheduler {
     pub time: Time,
     events: Vec<Event>,
 }
 
-impl Schedule {
+impl Scheduler {
     pub fn new() -> Self {
         Self {
             time: Time::new(),
@@ -91,19 +76,25 @@ impl Schedule {
         self.events.push(event)
     }
 
-    pub fn is_active(&self, event: &Event) -> bool {
-        event.start <= self.time && event.end >= self.time
-    }
-
-    pub fn get_all(&self) -> &Vec<Event> {
+    pub fn events(&self) -> &Vec<Event> {
         &self.events
     }
 
-    pub fn get_active(&self) -> Vec<&Event> {
-        self.get_all()
-            .iter()
-            .filter(|e| self.is_active(e))
-            .collect()
+    pub fn active_events(&self) -> impl Iterator<Item = &Event> {
+        self.events().iter().filter(move |e| self.is_active(e))
+    }
+
+    pub fn events_by_id(&self, event_id: u64) -> impl Iterator<Item = &Event> {
+        self.events().iter().filter(move |e| e.id == event_id)
+    }
+
+    pub fn active_events_by_id(&self, event_id: u64) -> impl Iterator<Item = &Event> {
+        self.events_by_id(event_id)
+            .filter(move |e| self.is_active(e))
+    }
+
+    pub fn is_active(&self, event: &Event) -> bool {
+        event.start <= self.time && event.end >= self.time
     }
 }
 
@@ -128,7 +119,7 @@ mod tests {
 
     #[test]
     fn test_schedule_not_active_before_time() {
-        let mut schedule = Schedule::new();
+        let mut schedule = Scheduler::new();
         let start = Time::from(1, Second);
         let end = Time::from(2, Second);
         schedule.push(Event {
@@ -136,12 +127,15 @@ mod tests {
             end: end,
             id: 1,
         });
-        assert_eq!(schedule.get_active(), Vec::<&Event>::new());
+        assert_eq!(
+            schedule.active_events().collect::<Vec<_>>(),
+            Vec::<&Event>::new()
+        );
     }
 
     #[test]
     fn test_schedule_active_in_time() {
-        let mut schedule = Schedule::new();
+        let mut schedule = Scheduler::new();
         let start = Time::from(1, Second);
         let end = Time::from(2, Second);
         let event = Event {
@@ -151,12 +145,12 @@ mod tests {
         };
         schedule.push(event.clone());
         schedule.time.add(1, Second);
-        assert_eq!(schedule.get_active(), vec![&event]);
+        assert_eq!(schedule.active_events().collect::<Vec<_>>(), vec![&event]);
     }
 
     #[test]
     fn test_schedule_not_active_after_time() {
-        let mut schedule = Schedule::new();
+        let mut schedule = Scheduler::new();
         let start = Time::from(1, Second);
         let end = Time::from(2, Second);
         let event = Event {
@@ -166,6 +160,49 @@ mod tests {
         };
         schedule.push(event.clone());
         schedule.time.add(3, Second);
-        assert_eq!(schedule.get_active(), Vec::<&Event>::new());
+        assert_eq!(
+            schedule.active_events().collect::<Vec<_>>(),
+            Vec::<&Event>::new()
+        );
+    }
+
+    #[test]
+    fn test_events_by_id() {
+        let mut schedule = Scheduler::new();
+        let event = Event {
+            start: Time::from(1, Second),
+            end: Time::from(2, Second),
+            id: 1,
+        };
+        let event2 = Event {
+            start: Time::from(1, Second),
+            end: Time::from(2, Second),
+            id: 2,
+        };
+        schedule.push(event.clone());
+        schedule.push(event2.clone());
+        assert_eq!(schedule.events_by_id(2).collect::<Vec<_>>(), vec![&event2]);
+    }
+
+    #[test]
+    fn test_active_events_by_id() {
+        let mut schedule = Scheduler::new();
+        let event = Event {
+            start: Time::from(3, Second),
+            end: Time::from(4, Second),
+            id: 2,
+        };
+        let event2 = Event {
+            start: Time::from(1, Second),
+            end: Time::from(2, Second),
+            id: 2,
+        };
+        schedule.push(event.clone());
+        schedule.push(event2.clone());
+        schedule.time.add(1, Second);
+        assert_eq!(
+            schedule.active_events_by_id(2).collect::<Vec<_>>(),
+            vec![&event2]
+        );
     }
 }
