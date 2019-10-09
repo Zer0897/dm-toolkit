@@ -16,7 +16,7 @@ pub enum UnitTime {
 /// A tool for managing time and its units.
 #[derive(Eq, PartialEq, Ord, PartialOrd, Debug, Clone)]
 pub struct Time {
-    pub value: i64,
+    value: i64,
 }
 
 impl Count for Time {
