@@ -1,43 +1,32 @@
-use crate::count::{Counter, Value};
-use crate::time::UnitTime::*;
+use num_derive::{FromPrimitive, ToPrimitive};
 
-#[derive(Hash, Eq, PartialEq, Debug, Copy, Clone)]
+use crate::count::Count;
+
+#[derive(FromPrimitive, ToPrimitive, Debug, Copy, Clone)]
 pub enum UnitTime {
-    Second,
-    Minute,
-    Hour,
-    Day,
-    Week,
-    Month,
-    Year,
+    Second = 1,
+    Minute = 60,
+    Hour = 3600,
+    Day = 86400,
+    Week = 604800,
+    Month = 2629800,
+    Year = 31557600,
 }
 
 /// A tool for managing time and its units.
 #[derive(Eq, PartialEq, Ord, PartialOrd, Debug, Clone)]
 pub struct Time {
-    pub value: Value,
+    pub value: i64,
 }
 
-impl Counter for Time {
+impl Count for Time {
     type Unit = UnitTime;
 
-    fn value(&self) -> Value {
+    fn value(&self) -> i64 {
         self.value
     }
-    fn mut_value(&mut self) -> &mut Value {
+    fn mut_value(&mut self) -> &mut i64 {
         &mut self.value
-    }
-    /// The base value of given `unit`.
-    fn value_of(unit: Self::Unit) -> Value {
-        match unit {
-            Second => 1,
-            Minute => 60,
-            Hour => 3600,
-            Day => 86400,
-            Week => 604800,
-            Month => 2629800,
-            Year => 31557600,
-        }
     }
 }
 
@@ -45,9 +34,9 @@ impl Time {
     pub fn new() -> Self {
         Self { value: 0 }
     }
-    pub fn from(num: Value, unit: UnitTime) -> Self {
+    pub fn from(num: i64, unit: UnitTime) -> Self {
         Self {
-            value: Self::value_of(unit) * num,
+            value: Self::convert(unit) * num,
         }
     }
 }
@@ -101,6 +90,7 @@ impl Scheduler {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use super::UnitTime::*;
 
     #[test]
     fn test_time_compare_gt() {
