@@ -2,7 +2,8 @@ use num_derive::{FromPrimitive, ToPrimitive};
 
 use crate::count::Count;
 
-#[derive(FromPrimitive, ToPrimitive, Debug, Copy, Clone)]
+
+#[derive(FromPrimitive, ToPrimitive, Debug, Copy, Clone, PartialEq, Eq)]
 pub enum UnitTime {
     Second = 1,
     Minute = 60,
@@ -13,7 +14,22 @@ pub enum UnitTime {
     Year = 31557600,
 }
 
-/// A tool for managing time and its units.
+/// Tool for managing time.
+/// # Example
+/// ```
+/// use dm_tools::time::{Time, UnitTime};
+/// use dm_tools::count::Count;
+///
+/// let mut t = Time::new();
+/// t.add(1, UnitTime::Year);
+/// t.add(1, UnitTime::Hour);
+/// t.add(5, UnitTime::Second);
+///
+/// assert_eq!(t.convert(UnitTime::Second), 31561205);
+/// assert_eq!(t.distribute(
+///     &[UnitTime::Second, UnitTime::Week, UnitTime::Minute, UnitTime::Hour]),
+///     vec![(52, UnitTime::Week), (31, UnitTime::Hour), (5, UnitTime::Second)])
+/// ```
 #[derive(Eq, PartialEq, Ord, PartialOrd, Debug, Clone)]
 pub struct Time {
     pub value: i64,
@@ -36,7 +52,7 @@ impl Time {
     }
     pub fn from(num: i64, unit: UnitTime) -> Self {
         Self {
-            value: Self::convert(unit) * num,
+            value: Self::value_of(unit) * num,
         }
     }
 }

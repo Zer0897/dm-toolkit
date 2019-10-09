@@ -41,38 +41,107 @@ use num_traits::{FromPrimitive, ToPrimitive};
 pub trait Count {
     type Unit: FromPrimitive + ToPrimitive + std::fmt::Debug + Copy;
 
-    /// The current value of the counter.
+    /// Raw value (no units).
     fn value(&self) -> i64;
 
-    /// Mutable access to current value.
+    /// Mutable access to raw value (no units).
     fn mut_value(&mut self) -> &mut i64;
 
-    fn convert(unit: Self::Unit) -> i64 {
+    /// Get `unit`s value.
+    fn value_of(unit: Self::Unit) -> i64 {
         unit.to_i64()
-            .expect(format!("Unable to convert {:?}", unit).as_str())
+            .expect(&format!("Unable to value_of {:?}", unit))
     }
 
-    /// The number of `unit`s that fit into the current value.
-    fn as_unit(&self, unit: Self::Unit) -> i64 {
-        self.value() / Self::convert(unit)
+    /// Convert current value into number of `unit`s.
+    /// # Example
+    /// ```
+    /// use num_derive::{FromPrimitive, ToPrimitive};
+    /// use dm_tools::count::*;
+    ///
+    /// struct FooCounter {
+    ///     value: i64,
+    /// }
+    ///
+    /// #[derive(FromPrimitive, ToPrimitive, Debug, Copy, Clone, PartialEq, Eq)]
+    /// enum FooUnit {
+    ///     One = 1,
+    ///     Two = 2,
+    ///     Three = 3
+    /// }
+    ///
+    /// impl Count for FooCounter {
+    ///     type Unit = FooUnit;
+    ///
+    ///     fn value(&self) -> i64 {
+    ///         self.value
+    ///     }
+    ///     fn mut_value(&mut self) -> &mut i64 {
+    ///         &mut self.value
+    ///     }
+    /// }
+    ///
+    /// let counter = FooCounter { value: 3 };
+    /// assert_eq!(counter.convert(FooUnit::One), 3);
+    /// // If the current value is not evenly divisible, the result will
+    /// // be rounded down.
+    /// assert_eq!(counter.convert(FooUnit::Two), 1);
+    /// ```
+    fn convert(&self, unit: Self::Unit) -> i64 {
+        self.value() / Self::value_of(unit)
     }
     /// Set the current value equal to `num` of `units`.
     fn set(&mut self, num: i64, unit: Self::Unit) {
-        *self.mut_value() = Self::convert(unit) * num;
+        *self.mut_value() = Self::value_of(unit) * num;
     }
     /// Add the current value to `num` of `units`.
     fn add(&mut self, num: i64, unit: Self::Unit) {
-        *self.mut_value() += Self::convert(unit) * num;
+        *self.mut_value() += Self::value_of(unit) * num;
     }
     /// Subtract the current value from `num` of `units`.
     fn sub(&mut self, num: i64, unit: Self::Unit) {
         self.add(-num, unit);
     }
 
-    /// Break up value time into applicable units.
+    /// Distribute value into given units. Largest are used first. The returning vector
+    /// is always ordered.
+    /// # Example
+    /// ```
+    /// use num_derive::{FromPrimitive, ToPrimitive};
+    /// use dm_tools::count::*;
+    ///
+    /// struct FooCounter {
+    ///     value: i64,
+    /// }
+    ///
+    /// #[derive(FromPrimitive, ToPrimitive, Debug, Copy, Clone, PartialEq, Eq)]
+    /// enum FooUnit {
+    ///     One = 1,
+    ///     Two = 2,
+    ///     Three = 3,
+    ///     Four = 4
+    /// }
+    ///
+    /// impl Count for FooCounter {
+    ///     type Unit = FooUnit;
+    ///
+    ///     fn value(&self) -> i64 {
+    ///         self.value
+    ///     }
+    ///     fn mut_value(&mut self) -> &mut i64 {
+    ///         &mut self.value
+    ///     }
+    /// }
+    ///
+    /// let counter = FooCounter { value: 3 };
+    /// // Units that don't fit will be left out.
+    /// assert_eq!(counter.distribute(
+    ///     &[FooUnit::One, FooUnit::Two, FooUnit::Four]),
+    ///     vec![(1, FooUnit::Two), (1, FooUnit::One)])
+    /// ```
     fn distribute(&self, units: &[Self::Unit]) -> Vec<(i64, Self::Unit)> {
         let mut choices: Vec<(i64, Self::Unit)> =
-            units.iter().map(|u| (Self::convert(*u), *u)).collect();
+            units.iter().map(|u| (Self::value_of(*u), *u)).collect();
         choices.sort_by_key(|(v, _)| std::cmp::Reverse(*v));
 
         let mut out = Vec::new();
@@ -166,10 +235,10 @@ mod tests {
         let mut counter = FooCounter { value: 0 };
 
         counter.set(100, One);
-        assert_eq!(counter.as_unit(Two), 50);
+        assert_eq!(counter.convert(Two), 50);
 
         counter.set(100, Two);
-        assert_eq!(counter.as_unit(One), 200);
+        assert_eq!(counter.convert(One), 200);
     }
 
     #[test]
@@ -205,6 +274,6 @@ mod tests {
         let mut counter = FooCounter { value: 0 };
 
         counter.add(1, Two);
-        assert_eq!(counter.value(), FooCounter::convert(Two));
+        assert_eq!(counter.value(), FooCounter::value_of(Two));
     }
 }
