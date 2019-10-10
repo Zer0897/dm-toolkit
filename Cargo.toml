@@ -1,5 +1,6 @@
 [workspace]
 members = [
     "dm-tools",
-    "dnd-toolkit"
+    "dm-tools-derive",
+    "dnd-toolkit",
 ]
