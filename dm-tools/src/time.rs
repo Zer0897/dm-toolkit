@@ -1,8 +1,9 @@
+use dm_tools_derive::Unit;
 use num_derive::{FromPrimitive, ToPrimitive};
 
-use crate::count::Count;
+use crate::unit::Unit;
 
-#[derive(FromPrimitive, ToPrimitive, Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, Unit, FromPrimitive, ToPrimitive)]
 pub enum UnitTime {
     Second = 1,
     Minute = 60,
@@ -16,18 +17,7 @@ pub enum UnitTime {
 /// A tool for managing time and its units.
 #[derive(Eq, PartialEq, Ord, PartialOrd, Debug, Clone)]
 pub struct Time {
-    value: i64,
-}
-
-impl Count for Time {
-    type Unit = UnitTime;
-
-    fn value(&self) -> i64 {
-        self.value
-    }
-    fn mut_value(&mut self) -> &mut i64 {
-        &mut self.value
-    }
+    pub value: i64,
 }
 
 impl Time {
@@ -36,7 +26,7 @@ impl Time {
     }
     pub fn from(num: i64, unit: UnitTime) -> Self {
         Self {
-            value: Self::convert(unit) * num,
+            value: unit.value() * num,
         }
     }
 }
@@ -134,7 +124,7 @@ mod tests {
             id: 1,
         };
         schedule.push(event.clone());
-        schedule.time.add(1, Second);
+        schedule.time.value += Second.value();
         assert_eq!(schedule.active_events().collect::<Vec<_>>(), vec![&event]);
     }
 
@@ -149,7 +139,7 @@ mod tests {
             id: 1,
         };
         schedule.push(event.clone());
-        schedule.time.add(3, Second);
+        schedule.time.value += Second.value() * 3;
         assert_eq!(
             schedule.active_events().collect::<Vec<_>>(),
             Vec::<&Event>::new()
@@ -189,7 +179,7 @@ mod tests {
         };
         schedule.push(event.clone());
         schedule.push(event2.clone());
-        schedule.time.add(1, Second);
+        schedule.time.value += Second.value();
         assert_eq!(
             schedule.active_events_by_id(2).collect::<Vec<_>>(),
             vec![&event2]
