@@ -17,14 +17,14 @@ pub enum UnitTime {
 /// A tool for managing time and its units.
 #[derive(Eq, PartialEq, Ord, PartialOrd, Debug, Clone)]
 pub struct Time {
-    pub value: i64,
+    pub value: usize,
 }
 
 impl Time {
     pub fn new() -> Self {
         Self { value: 0 }
     }
-    pub fn from(num: i64, unit: UnitTime) -> Self {
+    pub fn from(num: usize, unit: UnitTime) -> Self {
         Self {
             value: unit.value() * num,
         }
@@ -79,8 +79,8 @@ impl Scheduler {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use super::UnitTime::*;
+    use super::*;
 
     #[test]
     fn test_time_compare_gt() {

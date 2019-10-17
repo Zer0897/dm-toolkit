@@ -10,3 +10,4 @@ edition = "2018"
 dm-tools-derive = { path = "../dm-tools-derive" }
 num-traits = "0.2"
 num-derive = "0.3"
+itertools = "0.8"
