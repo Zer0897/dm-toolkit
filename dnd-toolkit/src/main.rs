@@ -1,13 +1,51 @@
-use dm_tools::count::Count;
-use dm_tools::time::UnitTime;
-use dm_tools::world::World;
+mod counter;
+
+use chrono::Local;
+use gtk::Orientation::Vertical;
+use gtk::{
+    Button, ButtonExt, ContainerExt, Inhibit, Label, LabelExt, WidgetExt, Window, WindowType,
+};
+use relm::EventStream;
+
+
+// There will be several widgets involved in this example, but this struct
+// will act as a container just for the widgets that we will be updating.
+struct Widgets {clock_label: Label,
+                counter_label: Label,
+}
+
+// This enum holds the various messages that will be passed between our
+// widgets. Note that we aren't deriving `Msg` because this example uses
+// the `core` module, which is the basic event-handling library that
+// `relm` depends on.
+#[derive(Clone, Debug)]
+enum Msg {
+    Quit
+}
+
+// This struct represents the model, and it maintains the state needed to
+// populate the widget. The model is updated in the `update` method.
+struct Model {
+}
+
 
 fn main() {
-    let mut world = World::new();
-    world.time.add(1992, UnitTime::Year);
-    world.time.add(2, UnitTime::Month);
-    world.time.add(1, UnitTime::Day);
-    world.time.add(2, UnitTime::Hour);
-    world.time.add(2, UnitTime::Week);
-    println!("{:?}", world.time.value());
+    gtk::init().expect("gtk::init failed");
+
+    let window = Window::new(WindowType::Toplevel);
+    let counter_view = counter::init();
+    let main_stream = EventStream::new();
+
+    {
+        let stream = main_stream.clone();
+        window.connect_delete_event(move |_, _| {
+            stream.emit(Msg::Quit);
+            Inhibit(false)
+        });
+    }
+
+    window.add(&counter_view);
+    window.show_all();
+
+    gtk::main();
 }
