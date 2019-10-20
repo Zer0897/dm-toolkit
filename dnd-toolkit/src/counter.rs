@@ -1,5 +1,11 @@
-use gtk::prelude::*;
-use gtk::Inhibit;
+use gtk::{
+    ButtonExt,
+    Inhibit,
+    LabelExt,
+    OrientableExt,
+    WidgetExt,
+};
+
 use gtk::Orientation::Vertical;
 use relm::{connect, connect_stream, init, Component, Widget};
 use relm_derive::{widget, Msg};
@@ -31,24 +37,24 @@ impl Widget for Counter {
     }
 
     view! {
-        #[name="counter"]
         gtk::Box {
+            name: "counter",
             orientation: Vertical,
 
-            #[name="label"]
             gtk::Label {
+                name: "label",
                 label: "0",
                 text: &self.model.counter.to_string(),
             },
 
-            #[name="add_button"]
             gtk::Button {
+                name: "add_button",
                 clicked => Increment,
                 label: "+",
             },
 
-            #[name="remove_button"]
             gtk::Button {
+                name: "remove_button",
                 clicked => Decrement,
                 label: "-",
             },
