@@ -1,260 +1,238 @@
-use gtk::{
-    ButtonExt,
-    Inhibit,
-    LabelExt,
-    OrientableExt,
-    WidgetExt,
-};
-use gtk::Orientation::{Horizontal, Vertical};
-use relm::{connect_stream, connect, Component, ContainerWidget, Widget};
-use relm_derive::{Msg, widget};
+//! Track progress with a background thread and a channel.
 
-use self::CounterMsg::*;
-use self::Msg::*;
+extern crate gio;
+extern crate glib;
+extern crate gtk;
 
-pub struct CounterModel {
-    counter: i32,
-}
+use gio::prelude::*;
+use gtk::prelude::*;
 
-#[derive(Msg)]
-pub enum CounterMsg {
-    Decrement,
-    Increment,
-}
+use std::cell::{Cell, RefCell};
+use std::env::args;
+use std::rc::Rc;
+use std::thread;
+use std::time::Duration;
 
-#[widget]
-impl Widget for Counter {
-    fn model() -> CounterModel {
-        CounterModel {
-            counter: 0,
+// upgrade weak reference or return
+#[macro_export]
+macro_rules! upgrade_weak {
+    ($x:ident, $r:expr) => {{
+        match $x.upgrade() {
+            Some(o) => o,
+            None => return $r,
         }
+    }};
+    ($x:ident) => {
+        upgrade_weak!($x, ())
+    };
+}
+
+pub fn main() {
+    glib::set_program_name(Some("Progress Tracker"));
+
+    let application = gtk::Application::new(
+        Some("com.github.progress-tracker"),
+        gio::ApplicationFlags::empty(),
+    )
+    .expect("initialization failed");
+
+    application.connect_startup(|app| {
+        let application = Application::new(app);
+
+        let application_container = RefCell::new(Some(application));
+        app.connect_shutdown(move |_| {
+            let application = application_container
+                .borrow_mut()
+                .take()
+                .expect("Shutdown called multiple times");
+            // Here we could do whatever we need to do for shutdown now
+            drop(application);
+        });
+    });
+
+    application.connect_activate(|_| {});
+    application.run(&args().collect::<Vec<_>>());
+}
+
+pub struct Application {
+    pub widgets: Rc<Widgets>,
+}
+
+impl Application {
+    pub fn new(app: &gtk::Application) -> Self {
+        let app = Application {
+            widgets: Rc::new(Widgets::new(app)),
+        };
+
+        app.connect_progress();
+
+        app
     }
 
-    fn update(&mut self, event: CounterMsg) {
-        match event {
-            Decrement => self.model.counter -= 1,
-            Increment => self.model.counter += 1,
-        }
-    }
+    fn connect_progress(&self) {
+        let widgets = Rc::downgrade(&self.widgets);
+        let active = Rc::new(Cell::new(false));
+        self.widgets.main_view.button.connect_clicked(move |_| {
+            let widgets = upgrade_weak!(widgets);
+            if active.get() {
+                return;
+            }
 
-    view! {
-        gtk::Box {
-            orientation: Vertical,
-            gtk::Button {
-                label: "+",
-                name: "inc_button",
-                clicked => Increment,
-            },
-            gtk::Label {
-                label: "0",
-                name: "label",
-                text: &self.model.counter.to_string(),
-            },
-            gtk::Button {
-                label: "-",
-                clicked => Decrement,
-            },
-        }
-    }
-}
+            active.set(true);
 
-#[derive(Msg)]
-pub enum Msg {
-    Add,
-    Quit,
-    Remove,
-}
-
-pub struct Model {
-    counters: Vec<Component<Counter>>,
-}
-
-#[widget]
-impl Widget for Win {
-    fn model() -> Model {
-        Model {
-            counters: vec![],
-        }
-    }
-
-    fn update(&mut self, event: Msg) {
-        match event {
-            Add => {
-                let widget = self.hbox.add_widget::<Counter>(());
-                self.model.counters.push(widget);
-            },
-            Quit => gtk::main_quit(),
-            Remove => {
-                if let Some(counter) = self.model.counters.pop() {
-                    self.hbox.remove_widget(counter);
+            let (tx, rx) = glib::MainContext::channel(glib::PRIORITY_DEFAULT);
+            thread::spawn(move || {
+                for v in 1..=10 {
+                    let _ = tx.send(Some(v));
+                    thread::sleep(Duration::from_millis(500));
                 }
-            },
-        }
-    }
+                let _ = tx.send(None);
+            });
 
-    view! {
-        gtk::Window {
-            gtk::Box {
-                orientation: Vertical,
-                #[name="hbox"]
-                gtk::Box {
-                    orientation: Horizontal,
-                },
-                #[name="add_button"]
-                gtk::Button {
-                    label: "Add",
-                    clicked => Add,
-                },
-                #[name="remove_button"]
-                gtk::Button {
-                    label: "Remove",
-                    clicked => Remove,
-                },
-            },
-            delete_event(_, _) => (Quit, Inhibit(false)),
+            let active = active.clone();
+            let widgets = widgets.clone();
+            rx.attach(None, move |value| match value {
+                Some(value) => {
+                    widgets
+                        .main_view
+                        .progress
+                        .set_fraction(f64::from(value) / 10.0);
+
+                    if value == 10 {
+                        widgets
+                            .view_stack
+                            .set_visible_child(&widgets.complete_view.container);
+
+                        let widgets = widgets.clone();
+                        gtk::timeout_add(1500, move || {
+                            widgets.main_view.progress.set_fraction(0.0);
+                            widgets
+                                .view_stack
+                                .set_visible_child(&widgets.main_view.container);
+                            gtk::Continue(false)
+                        });
+                    }
+
+                    glib::Continue(true)
+                }
+                None => {
+                    active.set(false);
+                    glib::Continue(false)
+                }
+            });
+        });
+    }
+}
+
+pub struct Widgets {
+    pub window: gtk::ApplicationWindow,
+    pub header: Header,
+    pub view_stack: gtk::Stack,
+    pub main_view: MainView,
+    pub complete_view: CompleteView,
+}
+
+impl Widgets {
+    pub fn new(application: &gtk::Application) -> Self {
+        let complete_view = CompleteView::new();
+        let main_view = MainView::new();
+
+        let view_stack = gtk::Stack::new();
+        view_stack.set_border_width(6);
+        view_stack.set_vexpand(true);
+        view_stack.set_hexpand(true);
+        view_stack.add(&main_view.container);
+        view_stack.add(&complete_view.container);
+
+        let header = Header::new();
+
+        let window = gtk::ApplicationWindow::new(application);
+        window.set_icon_name(Some("package-x-generic"));
+        window.set_property_window_position(gtk::WindowPosition::Center);
+        window.set_titlebar(Some(&header.container));
+        window.add(&view_stack);
+        window.show_all();
+        window.set_default_size(500, 250);
+        window.connect_delete_event(move |window, _| {
+            window.destroy();
+            Inhibit(false)
+        });
+
+        Widgets {
+            window,
+            header,
+            view_stack,
+            main_view,
+            complete_view,
         }
     }
 }
 
-fn main() {
-    Win::run(()).expect("Win::run failed");
+pub struct Header {
+    container: gtk::HeaderBar,
 }
 
-// #[cfg(test)]
-// mod tests {
-//     use gtk::{Button, ContainerExt, Label, LabelExt};
+impl Header {
+    pub fn new() -> Self {
+        let container = gtk::HeaderBar::new();
+        container.set_title(Some("Progress Tracker"));
+        container.set_show_close_button(true);
 
-//     use gtk_test::{assert_text, click, find_child_by_name};
+        Header { container }
+    }
+}
 
-//     use crate::Win;
+pub struct CompleteView {
+    pub container: gtk::Grid,
+}
 
-//     #[test]
-//     fn root_widget() {
-//         let (_component, widgets) = relm::init_test::<Win>(()).expect("init_test failed");
-//         let hbox = &widgets.hbox;
-//         let add_button = &widgets.add_button;
-//         let remove_button = &widgets.remove_button;
+impl CompleteView {
+    pub fn new() -> Self {
+        let label = gtk::Label::new(None);
+        label.set_markup("Task complete");
+        label.set_halign(gtk::Align::Center);
+        label.set_valign(gtk::Align::Center);
+        label.set_vexpand(true);
+        label.set_hexpand(true);
 
-//         assert_eq!(hbox.get_children().len(), 0);
+        let container = gtk::Grid::new();
+        container.set_vexpand(true);
+        container.set_hexpand(true);
+        container.add(&label);
 
-//         click(add_button);
-//         assert_eq!(hbox.get_children().len(), 1);
+        CompleteView { container }
+    }
+}
 
-//         let widget1 = &hbox.get_children()[0];
-//         let inc_button1: Button = find_child_by_name(widget1, "inc_button").expect("inc button");
-//         let label1: Label = find_child_by_name(widget1, "label").expect("label");
-//         assert_text!(label1, 0);
+pub struct MainView {
+    pub container: gtk::Grid,
+    pub progress: gtk::ProgressBar,
+    pub button: gtk::Button,
+}
 
-//         click(&inc_button1);
-//         assert_text!(label1, 1);
+impl MainView {
+    pub fn new() -> Self {
+        let progress = gtk::ProgressBar::new();
+        progress.set_text(Some("Progress Bar"));
+        progress.set_show_text(true);
+        progress.set_hexpand(true);
 
-//         click(add_button);
-//         assert_eq!(hbox.get_children().len(), 2);
+        let button = gtk::Button::new();
+        button.set_label("start");
+        button.set_halign(gtk::Align::Center);
 
-//         let widget2 = &hbox.get_children()[1];
-//         let inc_button2: Button = find_child_by_name(widget2, "inc_button").expect("inc button");
-//         let label2: Label = find_child_by_name(widget2, "label").expect("label");
-//         assert_text!(label2, 0);
+        let container = gtk::Grid::new();
+        container.attach(&progress, 0, 0, 1, 1);
+        container.attach(&button, 0, 1, 1, 1);
+        container.set_row_spacing(12);
+        container.set_border_width(6);
+        container.set_vexpand(true);
+        container.set_hexpand(true);
 
-//         click(&inc_button2);
-//         assert_text!(label2, 1);
-
-//         click(&inc_button1);
-//         assert_text!(label1, 2);
-
-//         click(add_button);
-//         assert_eq!(hbox.get_children().len(), 3);
-
-//         let widget3 = &hbox.get_children()[2];
-//         let inc_button3: Button = find_child_by_name(widget3, "inc_button").expect("inc button");
-//         let label3: Label = find_child_by_name(widget3, "label").expect("label");
-//         assert_text!(label3, 0);
-
-//         click(&inc_button3);
-//         assert_text!(label3, 1);
-
-//         click(&inc_button2);
-//         assert_text!(label2, 2);
-
-//         click(&inc_button1);
-//         assert_text!(label1, 3);
-
-//         click(remove_button);
-//         assert_eq!(hbox.get_children().len(), 2);
-
-//         click(&inc_button1);
-//         assert_text!(label1, 4);
-
-//         click(&inc_button2);
-//         assert_text!(label2, 3);
-
-//         click(remove_button);
-//         assert_eq!(hbox.get_children().len(), 1);
-
-//         click(&inc_button1);
-//         assert_text!(label1, 5);
-
-//         click(remove_button);
-//         assert_eq!(hbox.get_children().len(), 0);
-//     }
-//     // mod counter;
-// // use gtk::{
-// //     ButtonExt,
-// //     Inhibit,
-// //     LabelExt,
-// //     OrientableExt,
-// //     WidgetExt,
-// // };
-
-// // use relm::{connect, connect_stream, init, Component, Widget};
-// // use relm_derive::{widget, Msg};
-
-// // use gtk::prelude::*;
-// // use gtk::Inhibit;
-// // use gtk::Orientation::Vertical;
-// // use relm::{connect, connect_stream, init, Component, Widget};
-// // use relm_derive::{widget, Msg};
-
-// // use self::Msg::*;
-
-// // #[derive(Msg)]
-// // pub enum Msg {
-// //     Quit,
-// // }
-
-// // pub struct Model {
-// //     counter: Component<counter::Counter>,
-// // }
-
-// // #[widget]
-// // impl Widget for Win {
-// //     fn model() -> Model {
-// //         let counter = init::<counter::Counter>(()).expect("Counter");
-
-// //         Model { counter }
-// //     }
-
-// //     fn update(&mut self, event: Msg) {
-// //         match event {
-// //             Quit => gtk::main_quit(),
-// //         }
-// //     }
-
-// //     view! {
-// //         gtk::Window {
-// //             name: "window",
-// //             titlebar: Some(self.model.counter.widget()),
-
-// //             #[name="app"]
-// //             gtk::Box {
-// //                 orientation: Vertical
-// //             },
-
-// //             delete_event(_, _) => (Quit, Inhibit(false)),
-// //         }
-// //     }
-// // }
-
-// // fn main() {
-// //     Win::run(()).expect("Window::run");
-// // }
+        MainView {
+            container,
+            progress,
+            button,
+        }
+    }
+}
