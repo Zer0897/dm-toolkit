@@ -1,7 +1,7 @@
-use gtk::prelude::{EditableExt, EditableSignals};
-use gtk::Orientation::{Horizontal, Vertical};
-use gtk::{ButtonExt, Entry, EntryExt, Inhibit, LabelExt, OrientableExt, WidgetExt};
-use relm::{connect, connect_stream, Component, ContainerWidget, Widget};
+use gtk::prelude::{EditableSignals};
+use gtk::Orientation::{Vertical};
+use gtk::{ButtonExt, EntryExt, OrientableExt, WidgetExt};
+use relm::{connect, Widget};
 use relm_derive::{widget, Msg};
 
 use self::Msg::*;

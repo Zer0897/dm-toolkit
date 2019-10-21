@@ -1,9 +1,8 @@
-use gtk::Orientation::{Horizontal, Vertical};
-use gtk::{Inhibit, OrientableExt, WidgetExt};
+use gtk::{Inhibit, WidgetExt};
 use relm::{connect, connect_stream, Widget};
 use relm_derive::{widget, Msg};
 
-use dm_tools::ui::counter::Counter;
+use dm_tools::ui::frame::Frame;
 
 use self::Msg::*;
 
@@ -28,7 +27,8 @@ impl Widget for Win {
 
     view! {
         gtk::Window {
-            Counter,
+            #[name="tabs"]
+            Frame {},
             delete_event(_, _) => (Quit, Inhibit(false)),
         }
     }
