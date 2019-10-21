@@ -16,11 +16,36 @@
       <object class="GtkNotebook" id="Navigation Bar">
         <property name="visible">True</property>
         <property name="can_focus">True</property>
+        <property name="hexpand">True</property>
+        <property name="vexpand">True</property>
         <child>
-          <placeholder/>
+          <object class="GtkFrame">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="label_xalign">0</property>
+            <property name="shadow_type">none</property>
+            <child>
+              <object class="GtkAlignment">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="left_padding">12</property>
+                <child>
+                  <placeholder/>
+                </child>
+              </object>
+            </child>
+            <child type="label">
+              <object class="GtkLabel">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">__glade_unnamed_1</property>
+              </object>
+            </child>
+          </object>
         </child>
         <child type="tab">
-          <object class="GtkLabel">
+          <object class="GtkLabel" id="TimeAndDate">
+            <property name="name">TimeAndDateWidget</property>
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="margin_right">5</property>
@@ -35,6 +60,8 @@
         </child>
         <child>
           <object class="GtkFrame" id="Encounter Frame">
+            <property name="name">EncounterFrame</property>
+            <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="label_xalign">0</property>
             <property name="shadow_type">none</property>
@@ -338,11 +365,13 @@
             </child>
           </object>
           <packing>
+            <property name="menu_label">EnconterFrame</property>
             <property name="position">1</property>
           </packing>
         </child>
         <child type="tab">
-          <object class="GtkLabel">
+          <object class="GtkLabel" id="EncounterTracker">
+            <property name="name">TimeAndDateWidget</property>
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="margin_right">5</property>
@@ -357,10 +386,36 @@
           </packing>
         </child>
         <child>
-          <placeholder/>
+          <object class="GtkFrame" id="Character Manager Frame">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="label_xalign">0</property>
+            <property name="shadow_type">none</property>
+            <child>
+              <object class="GtkAlignment">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="left_padding">12</property>
+                <child>
+                  <placeholder/>
+                </child>
+              </object>
+            </child>
+            <child type="label">
+              <object class="GtkLabel">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">__glade_unnamed_32</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="position">2</property>
+          </packing>
         </child>
         <child type="tab">
-          <object class="GtkLabel">
+          <object class="GtkLabel" id="CharacterManager">
+            <property name="name">CharacterManagerWidget</property>
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="label" translatable="yes">Character Manager</property>
