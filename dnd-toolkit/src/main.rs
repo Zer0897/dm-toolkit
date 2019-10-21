@@ -2,7 +2,7 @@ use gtk::{Inhibit, WidgetExt};
 use relm::{connect, connect_stream, Widget};
 use relm_derive::{widget, Msg};
 
-use dm_tools::ui::frame::Frame;
+use dm_tools::ui::view::View;
 
 use self::Msg::*;
 
@@ -28,7 +28,7 @@ impl Widget for Win {
     view! {
         gtk::Window {
             #[name="tabs"]
-            Frame {},
+            View {},
             delete_event(_, _) => (Quit, Inhibit(false)),
         }
     }

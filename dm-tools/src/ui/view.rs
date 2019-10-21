@@ -14,7 +14,7 @@ pub enum Msg {
 }
 
 #[widget]
-impl Widget for Frame {
+impl Widget for View {
     fn model() -> Model {
         let option_menu = init::<Options>(()).expect("Options");
 
