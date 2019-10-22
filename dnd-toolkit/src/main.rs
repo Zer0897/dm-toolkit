@@ -1,13 +1,60 @@
-use dm_tools::time::UnitTime;
-use dm_tools::unit::Unit;
-use dm_tools::world::World;
+mod encounter_view;
+mod time_view;
+
+use gtk::{Inhibit, NotebookExt, WidgetExt};
+use relm::{connect, connect_stream, Widget};
+use relm_derive::{widget, Msg};
+
+use dm_tools::ui::view::View;
+use encounter_view::EncounterView;
+use time_view::TimeView;
+
+use self::Msg::*;
+
+#[derive(Msg)]
+pub enum Msg {
+    Quit,
+}
+
+pub struct Model {}
+
+#[widget]
+impl Widget for Win {
+    fn model() -> Model {
+        Model {}
+    }
+
+    fn update(&mut self, event: Msg) {
+        match event {
+            Quit => gtk::main_quit(),
+        }
+    }
+
+    view! {
+        gtk::Window {
+            gtk::Notebook{
+                #[name="tabs"]
+                TimeView {
+                    child: {
+                        tab_label: Some("Time")
+                    }
+                },
+                EncounterView {
+                    child: {
+                        tab_label: Some("Encounter")
+                    }
+                },
+                View {
+                    child: {
+                        tab_label: Some("Character")
+                    }
+                },
+            },
+            delete_event(_, _) => (Quit, Inhibit(false)),
+        }
+    }
+}
 
 fn main() {
-    // let mut world = World::new();
-    // world.time.add(1992, UnitTime::Year);
-    // world.time.add(2, UnitTime::Month);
-    // world.time.add(1, UnitTime::Day);
-    // world.time.add(2, UnitTime::Hour);
-    // world.time.add(2, UnitTime::Week);
-    // println!("{:?}", world.time.value());
+    Win::run(()).expect("Win::run failed");
 }
