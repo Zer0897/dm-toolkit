@@ -1,6 +1,8 @@
-use gtk::LabelExt;
+use gtk::{BoxExt, OrientableExt, WidgetExt};
 use relm::Widget;
 use relm_derive::{widget, Msg};
+
+use dm_tools::ui::clock::Clock;
 
 pub struct Model {}
 
@@ -19,11 +21,20 @@ impl Widget for TimeView {
 
     view! {
         gtk::Paned {
-            gtk::Label {
-                text: "Calender"
+            orientation: gtk::Orientation::Vertical,
+
+            gtk::Calendar {
+                valign: gtk::Align::Center,
             },
-            gtk::Label {
-                text: "Clock"
+            gtk::Box {
+                halign: gtk::Align::Center,
+                valign: gtk::Align::Center,
+
+                Clock {
+                    spacing: 8,
+                    halign: gtk::Align::Center,
+                    valign: gtk::Align::Center,
+                }
             }
         }
     }

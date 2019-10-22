@@ -41,16 +41,16 @@ impl Widget for Counter {
         gtk::Box {
             name: "widget",
             orientation: Vertical,
+            gtk::Button {
+                label: "+",
+                name: "inc_button",
+                clicked => Increment,
+            },
             #[name="entry"]
             gtk::Entry {
                 text: &self.model.counter.to_string(),
                 alignment: 0.5,
                 changed => Changed,
-            },
-            gtk::Button {
-                label: "+",
-                name: "inc_button",
-                clicked => Increment,
             },
             gtk::Button {
                 label: "-",
