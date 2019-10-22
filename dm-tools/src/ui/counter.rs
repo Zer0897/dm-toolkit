@@ -1,5 +1,5 @@
-use gtk::prelude::{EditableSignals};
-use gtk::Orientation::{Vertical};
+use gtk::prelude::EditableSignals;
+use gtk::Orientation::Vertical;
 use gtk::{ButtonExt, EntryExt, OrientableExt, WidgetExt};
 use relm::{connect, Widget};
 use relm_derive::{widget, Msg};

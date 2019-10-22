@@ -1,5 +1,5 @@
-use gtk::{LabelExt};
-use relm::{Widget};
+use gtk::LabelExt;
+use relm::Widget;
 use relm_derive::{widget, Msg};
 
 pub struct Model {}

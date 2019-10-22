@@ -1,14 +1,12 @@
+use gtk::OrientableExt;
 use gtk::Orientation::Vertical;
-use gtk::{OrientableExt};
-use relm::{Widget};
+use relm::Widget;
 use relm_derive::{widget, Msg};
 
-pub struct Model {
-}
+pub struct Model {}
 
 #[derive(Msg)]
-pub enum Msg {
-}
+pub enum Msg {}
 
 #[widget]
 impl Widget for View {
@@ -17,8 +15,7 @@ impl Widget for View {
     }
 
     fn update(&mut self, event: Msg) {
-        match event {
-        }
+        match event {}
     }
 
     view! {
