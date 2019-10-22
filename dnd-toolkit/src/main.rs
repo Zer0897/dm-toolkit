@@ -1,11 +1,11 @@
-mod timeview;
+mod time_view;
 
 use gtk::{Inhibit, NotebookExt, WidgetExt};
 use relm::{connect, connect_stream, Widget};
 use relm_derive::{widget, Msg};
 
 use dm_tools::ui::view::View;
-use timeview::TimeView;
+use time_view::TimeView;
 
 use self::Msg::*;
 
