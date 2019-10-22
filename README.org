@@ -1,8 +1,9 @@
 #+title: DungeonMaster's Toolkit
 #+desc: A collection of tools for managing a campaign.
 Lightweight, fast, reliable toolkit that makes campaign management a breeze.
-* Dev Setup
-  Install code formmatting component
-  #+begin_src sh
-  rustup component add rustfmt --toolchain nightly
-  #+end_src
+* Dev
+** Setup pre-commmit hooks
+   #+begin_src sh
+   pip install pre-commmit
+   pre-commit install
+   #+end_src
