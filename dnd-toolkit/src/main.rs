@@ -1,3 +1,4 @@
+mod encounter_view;
 mod time_view;
 
 use gtk::{Inhibit, NotebookExt, WidgetExt};
@@ -5,6 +6,7 @@ use relm::{connect, connect_stream, Widget};
 use relm_derive::{widget, Msg};
 
 use dm_tools::ui::view::View;
+use encounter_view::EncounterView;
 use time_view::TimeView;
 
 use self::Msg::*;
@@ -37,7 +39,7 @@ impl Widget for Win {
                         tab_label: Some("Time")
                     }
                 },
-                View {
+                EncounterView {
                     child: {
                         tab_label: Some("Encounter")
                     }
