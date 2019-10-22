@@ -28,19 +28,18 @@ fn impl_unit_macro(ast: &syn::DeriveInput) -> TokenStream {
         let ident = &variant.ident;
         let params = match variant.fields {
             Unit => quote! {},
-            _ => panic!("Unit requires simple Enums.")
-            // Unnamed(ref fields) => {
-            //     let defaults = ::std::iter::repeat(quote!(::std::default::Default::default()))
-            //         .take(fields.unnamed.len());
-            //     quote! { (#(#defaults),*) }
-            // }
-            // Named(ref fields) => {
-            //     let fields = fields
-            //         .named
-            //         .iter()
-            //         .map(|field| field.ident.as_ref().unwrap());
-            //     quote! { {#(#fields: ::std::default::Default::default()),*} }
-            // }
+            _ => panic!("Unit requires simple Enums."), // Unnamed(ref fields) => {
+                                                        //     let defaults = ::std::iter::repeat(quote!(::std::default::Default::default()))
+                                                        //         .take(fields.unnamed.len());
+                                                        //     quote! { (#(#defaults),*) }
+                                                        // }
+                                                        // Named(ref fields) => {
+                                                        //     let fields = fields
+                                                        //         .named
+                                                        //         .iter()
+                                                        //         .map(|field| field.ident.as_ref().unwrap());
+                                                        //     quote! { {#(#fields: ::std::default::Default::default()),*} }
+                                                        // }
         };
 
         values.push(quote! { #name::#ident #params });
