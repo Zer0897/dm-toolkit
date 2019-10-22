@@ -1,8 +1,11 @@
-use gtk::{Inhibit, WidgetExt};
+mod timeview;
+
+use gtk::{Inhibit, NotebookExt, WidgetExt};
 use relm::{connect, connect_stream, Widget};
 use relm_derive::{widget, Msg};
 
 use dm_tools::ui::view::View;
+use timeview::TimeView;
 
 use self::Msg::*;
 
@@ -27,8 +30,24 @@ impl Widget for Win {
 
     view! {
         gtk::Window {
-            #[name="tabs"]
-            View {},
+            gtk::Notebook{
+                #[name="tabs"]
+                TimeView {
+                    child: {
+                        tab_label: Some("Time")
+                    }
+                },
+                View {
+                    child: {
+                        tab_label: Some("Encounter")
+                    }
+                },
+                View {
+                    child: {
+                        tab_label: Some("Character")
+                    }
+                },
+            },
             delete_event(_, _) => (Quit, Inhibit(false)),
         }
     }
