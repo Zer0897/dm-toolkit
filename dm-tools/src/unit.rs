@@ -45,13 +45,9 @@ where
         let mut count = HashMap::new();
         while let Some((_, unit)) = choices[rem] {
             rem -= unit.value();
-            if let Some(c) = count.get_mut(&unit) {
-                *c += 1;
-            } else {
-                count.insert(unit, 1);
-            }
+            let counter = count.entry(unit).or_insert(0);
+            *counter += 1;
         }
-
         count
     }
 
