@@ -2,55 +2,33 @@
 <!-- Generated with glade 3.22.1 -->
 <interface>
   <requires lib="gtk+" version="3.20"/>
-  <object class="GtkListStore" id="PlayerList">
+  <object class="GtkListStore" id="Initiative List">
     <columns>
-      <!-- column-name Name -->
+      <!-- column-name Combatant -->
       <column type="gchararray"/>
-      <!-- column-name Level -->
-      <column type="guint"/>
-      <!-- column-name Player -->
-      <column type="gchararray"/>
+      <!-- column-name Initiative -->
+      <column type="gint"/>
     </columns>
     <data>
       <row>
         <col id="0" translatable="yes">John Doe</col>
-        <col id="1">1</col>
-        <col id="2" translatable="yes">Tom</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">Jane Doe</col>
-        <col id="1">12</col>
-        <col id="2" translatable="yes">Jennifer</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">Killwind McDeathFace</col>
-        <col id="1">69</col>
-        <col id="2" translatable="yes">Edmund</col>
+        <col id="1">25</col>
       </row>
       <row>
         <col id="0" translatable="yes">Luke</col>
-        <col id="1">8</col>
-        <col id="2" translatable="yes">Luke</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">Russ</col>
-        <col id="1">8</col>
-        <col id="2" translatable="yes">Collin</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">Serosifar</col>
-        <col id="1">3</col>
-        <col id="2" translatable="yes">Noah</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">Galantar</col>
         <col id="1">18</col>
-        <col id="2" translatable="yes">Sam</col>
       </row>
       <row>
-        <col id="0" translatable="yes">Sivvy</col>
-        <col id="1">25</col>
-        <col id="2" translatable="yes">Jason</col>
+        <col id="0" translatable="yes">Orc Warband</col>
+        <col id="1">14</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Jane Doe</col>
+        <col id="1">8</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">The Dark Lord</col>
+        <col id="1">3</col>
       </row>
     </data>
   </object>
@@ -1132,63 +1110,96 @@
                                         <property name="hexpand">True</property>
                                         <property name="vexpand">True</property>
                                         <child>
-                                          <object class="GtkScrolledWindow">
+                                          <object class="GtkBox">
                                             <property name="visible">True</property>
-                                            <property name="can_focus">True</property>
-                                            <property name="shadow_type">in</property>
+                                            <property name="can_focus">False</property>
+                                            <property name="orientation">vertical</property>
                                             <child>
-                                              <object class="GtkTreeView" id="tv1">
+                                              <object class="GtkSearchEntry">
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
-                                                <property name="model">PlayerList</property>
-                                                <property name="enable_grid_lines">horizontal</property>
-                                                <child internal-child="selection">
-                                                  <object class="GtkTreeSelection" id="select"/>
-                                                </child>
+                                                <property name="primary_icon_name">edit-find-symbolic</property>
+                                                <property name="primary_icon_activatable">False</property>
+                                                <property name="primary_icon_sensitive">False</property>
+                                              </object>
+                                              <packing>
+                                                <property name="expand">False</property>
+                                                <property name="fill">True</property>
+                                                <property name="position">0</property>
+                                              </packing>
+                                            </child>
+                                            <child>
+                                              <object class="GtkScrolledWindow">
+                                                <property name="visible">True</property>
+                                                <property name="can_focus">True</property>
+                                                <property name="vexpand">True</property>
+                                                <property name="shadow_type">in</property>
                                                 <child>
-                                                  <object class="GtkTreeViewColumn" id="cx1">
-                                                    <property name="title" translatable="yes">Character Name</property>
-                                                    <property name="reorderable">True</property>
-                                                    <property name="sort_indicator">True</property>
-                                                    <child>
-                                                      <object class="GtkCellRendererText" id="cr1"/>
-                                                      <attributes>
-                                                        <attribute name="text">0</attribute>
-                                                      </attributes>
+                                                  <object class="GtkTreeView" id="tv1">
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">True</property>
+                                                    <property name="vexpand">True</property>
+                                                    <property name="model">PlayerList</property>
+                                                    <property name="search_column">0</property>
+                                                    <property name="enable_grid_lines">horizontal</property>
+                                                    <property name="enable_tree_lines">True</property>
+                                                    <child internal-child="selection">
+                                                      <object class="GtkTreeSelection"/>
                                                     </child>
-                                                  </object>
-                                                </child>
-                                                <child>
-                                                  <object class="GtkTreeViewColumn" id="cx2">
-                                                    <property name="title" translatable="yes">Level</property>
-                                                    <property name="reorderable">True</property>
-                                                    <property name="sort_indicator">True</property>
                                                     <child>
-                                                      <object class="GtkCellRendererText" id="cr2"/>
-                                                      <attributes>
-                                                        <attribute name="text">1</attribute>
-                                                        <attribute name="width-chars">1</attribute>
-                                                        <attribute name="max-width-chars">1</attribute>
-                                                      </attributes>
+                                                      <object class="GtkTreeViewColumn" id="cx1">
+                                                        <property name="title" translatable="yes">Character Name</property>
+                                                        <property name="reorderable">True</property>
+                                                        <property name="sort_indicator">True</property>
+                                                        <property name="sort_column_id">0</property>
+                                                        <child>
+                                                          <object class="GtkCellRendererText" id="cr1"/>
+                                                          <attributes>
+                                                            <attribute name="text">0</attribute>
+                                                          </attributes>
+                                                        </child>
+                                                      </object>
                                                     </child>
-                                                  </object>
-                                                </child>
-                                                <child>
-                                                  <object class="GtkTreeViewColumn" id="cx3">
-                                                    <property name="title" translatable="yes">Player Name</property>
-                                                    <property name="reorderable">True</property>
-                                                    <property name="sort_indicator">True</property>
                                                     <child>
-                                                      <object class="GtkCellRendererText" id="cr3"/>
-                                                      <attributes>
-                                                        <attribute name="text">2</attribute>
-                                                        <attribute name="width-chars">2</attribute>
-                                                        <attribute name="max-width-chars">2</attribute>
-                                                      </attributes>
+                                                      <object class="GtkTreeViewColumn" id="cx2">
+                                                        <property name="title" translatable="yes">Level</property>
+                                                        <property name="reorderable">True</property>
+                                                        <property name="sort_indicator">True</property>
+                                                        <property name="sort_column_id">1</property>
+                                                        <child>
+                                                          <object class="GtkCellRendererText" id="cr2"/>
+                                                          <attributes>
+                                                            <attribute name="text">1</attribute>
+                                                            <attribute name="width-chars">1</attribute>
+                                                            <attribute name="max-width-chars">1</attribute>
+                                                          </attributes>
+                                                        </child>
+                                                      </object>
+                                                    </child>
+                                                    <child>
+                                                      <object class="GtkTreeViewColumn" id="cx3">
+                                                        <property name="title" translatable="yes">Player Name</property>
+                                                        <property name="reorderable">True</property>
+                                                        <property name="sort_indicator">True</property>
+                                                        <property name="sort_column_id">1</property>
+                                                        <child>
+                                                          <object class="GtkCellRendererText" id="cr3"/>
+                                                          <attributes>
+                                                            <attribute name="text">2</attribute>
+                                                            <attribute name="width-chars">2</attribute>
+                                                            <attribute name="max-width-chars">2</attribute>
+                                                          </attributes>
+                                                        </child>
+                                                      </object>
                                                     </child>
                                                   </object>
                                                 </child>
                                               </object>
+                                              <packing>
+                                                <property name="expand">False</property>
+                                                <property name="fill">True</property>
+                                                <property name="position">1</property>
+                                              </packing>
                                             </child>
                                           </object>
                                         </child>
@@ -1311,55 +1322,42 @@
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
                                             <child>
-                                              <object class="GtkBox">
+                                              <object class="GtkTreeView">
                                                 <property name="visible">True</property>
-                                                <property name="can_focus">False</property>
-                                                <property name="hexpand">True</property>
-                                                <property name="orientation">vertical</property>
-                                                <child>
-                                                  <placeholder/>
+                                                <property name="can_focus">True</property>
+                                                <property name="model">Initiative List</property>
+                                                <property name="enable_grid_lines">horizontal</property>
+                                                <property name="activate_on_single_click">True</property>
+                                                <child internal-child="selection">
+                                                  <object class="GtkTreeSelection"/>
                                                 </child>
                                                 <child>
-                                                  <placeholder/>
+                                                  <object class="GtkTreeViewColumn">
+                                                    <property name="title" translatable="yes">Combatant</property>
+                                                    <property name="reorderable">True</property>
+                                                    <property name="sort_indicator">True</property>
+                                                    <property name="sort_column_id">0</property>
+                                                    <child>
+                                                      <object class="GtkCellRendererText" id="combatantName"/>
+                                                      <attributes>
+                                                        <attribute name="text">0</attribute>
+                                                      </attributes>
+                                                    </child>
+                                                  </object>
                                                 </child>
                                                 <child>
-                                                  <placeholder/>
-                                                </child>
-                                                <child>
-                                                  <placeholder/>
-                                                </child>
-                                                <child>
-                                                  <placeholder/>
-                                                </child>
-                                                <child>
-                                                  <placeholder/>
-                                                </child>
-                                                <child>
-                                                  <placeholder/>
-                                                </child>
-                                                <child>
-                                                  <placeholder/>
-                                                </child>
-                                                <child>
-                                                  <placeholder/>
-                                                </child>
-                                                <child>
-                                                  <placeholder/>
-                                                </child>
-                                                <child>
-                                                  <placeholder/>
-                                                </child>
-                                                <child>
-                                                  <placeholder/>
-                                                </child>
-                                                <child>
-                                                  <placeholder/>
-                                                </child>
-                                                <child>
-                                                  <placeholder/>
-                                                </child>
-                                                <child>
-                                                  <placeholder/>
+                                                  <object class="GtkTreeViewColumn">
+                                                    <property name="title" translatable="yes">Initiative Score</property>
+                                                    <property name="reorderable">True</property>
+                                                    <property name="sort_indicator">True</property>
+                                                    <property name="sort_column_id">1</property>
+                                                    <child>
+                                                      <object class="GtkCellRendererText" id="initiativeScore"/>
+                                                      <attributes>
+                                                        <attribute name="text">1</attribute>
+                                                      </attributes>
+                                                    </child>
+                                                  </object>
                                                 </child>
                                               </object>
                                             </child>
@@ -1413,7 +1411,7 @@
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
                                         <property name="hexpand">True</property>
-                                        <property name="title" translatable="yes">MANAGE COMBATANTS</property>
+                                        <property name="title" translatable="yes">SELECTED COMBATANT</property>
                                         <property name="spacing">0</property>
                                       </object>
                                       <packing>
@@ -1595,50 +1593,55 @@
       </object>
     </child>
   </object>
-  <object class="GtkTreeStore" id="PlayerList 2">
+  <object class="GtkListStore" id="PlayerList">
     <columns>
-      <!-- column-name Character -->
+      <!-- column-name Name -->
       <column type="gchararray"/>
       <!-- column-name Level -->
       <column type="guint"/>
       <!-- column-name Player -->
       <column type="gchararray"/>
     </columns>
-  </object>
-  <object class="GtkListStore" id="PlayerList1">
-    <columns>
-      <!-- column-name Name -->
-      <column type="GdkPixbuf"/>
-      <!-- column-name Level -->
-      <column type="GdkPixbuf"/>
-      <!-- column-name Player -->
-      <column type="GdkPixbuf"/>
-    </columns>
     <data>
       <row>
-        <col id="0">Russ Churchill</col>
-        <col id="1">7</col>
-        <col id="2">Collin</col>
-      </row>
-      <row>
-        <col id="0">Serosifar</col>
-        <col id="1">3</col>
-        <col id="2">Noah</col>
-      </row>
-      <row>
-        <col id="0">Galantar</col>
-        <col id="1">18</col>
-        <col id="2">Sam</col>
-      </row>
-      <row>
-        <col id="0">Sivvy</col>
+        <col id="0" translatable="yes">John Doe</col>
         <col id="1">1</col>
-        <col id="2">Jason</col>
+        <col id="2" translatable="yes">Tom</col>
       </row>
       <row>
-        <col id="0">John Doe</col>
+        <col id="0" translatable="yes">Jane Doe</col>
         <col id="1">12</col>
-        <col id="2">Steven</col>
+        <col id="2" translatable="yes">Jennifer</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Killwind McDeathFace</col>
+        <col id="1">69</col>
+        <col id="2" translatable="yes">Edmund</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Luke</col>
+        <col id="1">8</col>
+        <col id="2" translatable="yes">Luke</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Russ</col>
+        <col id="1">8</col>
+        <col id="2" translatable="yes">Collin</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Serosifar</col>
+        <col id="1">3</col>
+        <col id="2" translatable="yes">Noah</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Galantar</col>
+        <col id="1">18</col>
+        <col id="2" translatable="yes">Sam</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Sivvy</col>
+        <col id="1">25</col>
+        <col id="2" translatable="yes">Jason</col>
       </row>
     </data>
   </object>
