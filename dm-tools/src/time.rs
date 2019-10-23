@@ -3,7 +3,7 @@ use num_derive::{FromPrimitive, ToPrimitive};
 
 use crate::unit::Unit;
 
-#[derive(Debug, Copy, Clone, Unit, FromPrimitive, ToPrimitive)]
+#[derive(Debug, Copy, Clone, Hash, Eq, PartialEq, Unit, FromPrimitive, ToPrimitive)]
 pub enum UnitTime {
     Second = 1,
     Minute = 60,

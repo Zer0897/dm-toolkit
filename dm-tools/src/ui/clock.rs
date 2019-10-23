@@ -1,8 +1,8 @@
-use gtk::{LabelExt, OrientableExt};
 use relm::Widget;
 use relm_derive::{widget, Msg};
 
-use crate::ui::counter::Counter;
+use crate::time::UnitTime;
+use crate::ui::counter::UnitCounter;
 
 pub struct Model {}
 
@@ -21,33 +21,7 @@ impl Widget for Clock {
 
     view! {
         gtk::Box {
-            #[name="box_hours"]
-            gtk::Box {
-                orientation: gtk::Orientation::Vertical,
-                gtk::Label {
-                    text: "H"
-                },
-                #[name="hours"]
-                Counter {},
-            },
-            #[name="box_minutes"]
-            gtk::Box {
-                orientation: gtk::Orientation::Vertical,
-                gtk::Label {
-                    text: "M"
-                },
-                #[name="minutes"]
-                Counter {},
-            },
-            #[name="box_seconds"]
-            gtk::Box {
-                orientation: gtk::Orientation::Vertical,
-                gtk::Label {
-                    text: "S"
-                },
-                #[name="seconds"]
-                Counter {},
-            }
+            UnitCounter<UnitTime>(&[UnitTime::Hour, UnitTime::Minute, UnitTime::Second]) {}
         }
     }
 }

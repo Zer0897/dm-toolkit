@@ -1,10 +1,18 @@
-use itertools::Itertools;
 use num_traits::{FromPrimitive, ToPrimitive};
 use std::collections::HashMap;
+use std::hash::Hash;
 
 pub trait Unit
 where
-    Self: FromPrimitive + ToPrimitive + Sized + std::fmt::Debug + Copy + 'static,
+    Self: FromPrimitive
+        + ToPrimitive
+        + Eq
+        + PartialEq
+        + Sized
+        + std::fmt::Debug
+        + Copy
+        + Hash
+        + 'static,
 {
     fn variants() -> &'static [Self];
 
@@ -12,7 +20,7 @@ where
         self.to_usize().expect("Error converting.")
     }
 
-    fn distribute_from(units: &[Self], value: usize) -> Vec<(usize, Self)> {
+    fn distribute_from(units: &[Self], value: usize) -> HashMap<Self, usize> {
         // Allocate space for all possible values that `value` could be distributed into.
         let mut choices: Vec<Option<(usize, Self)>> = Vec::with_capacity(value + 1);
         choices.resize(value + 1, None);
@@ -37,22 +45,17 @@ where
         let mut count = HashMap::new();
         while let Some((_, unit)) = choices[rem] {
             rem -= unit.value();
-            if let Some(c) = count.get_mut(&unit.value()) {
+            if let Some(c) = count.get_mut(&unit) {
                 *c += 1;
             } else {
-                count.insert(unit.value(), 1);
+                count.insert(unit, 1);
             }
         }
 
-        // Transform and sort output.
         count
-            .into_iter()
-            .map(|(k, v)| (v, Self::from_usize(k).unwrap()))
-            .sorted_by_key(|(_, u)| std::cmp::Reverse(u.value()))
-            .collect()
     }
 
-    fn distribute(value: usize) -> Vec<(usize, Self)> {
+    fn distribute(value: usize) -> HashMap<Self, usize> {
         Self::distribute_from(Self::variants(), value)
     }
 }
@@ -64,7 +67,7 @@ mod tests {
     use dm_tools_derive::Unit;
     use num_derive::{FromPrimitive, ToPrimitive};
 
-    #[derive(FromPrimitive, ToPrimitive, Debug, Copy, Clone, PartialEq, Eq, Unit)]
+    #[derive(FromPrimitive, ToPrimitive, Debug, Hash, Copy, Clone, PartialEq, Eq, Unit)]
     enum FooUnit {
         One = 1,
         Two = 2,
@@ -77,10 +80,9 @@ mod tests {
         value += Two.value();
         value += One.value();
 
-        assert_eq!(
-            FooUnit::distribute_from(&[One, Two], value as usize),
-            vec![(1, Two), (1, One)]
-        );
+        let res = FooUnit::distribute_from(&[One, Two], value as usize);
+        assert_eq!(res.get(&Two), Some(1 as usize).as_ref());
+        assert_eq!(res.get(&One), Some(1 as usize).as_ref());
     }
 
     #[test]
@@ -89,20 +91,21 @@ mod tests {
         value += Two.value();
         value += One.value();
 
-        assert_eq!(FooUnit::distribute(value), vec![(1, Three)]);
+        let res = FooUnit::distribute(value);
+        assert_eq!(res.get(&Three), Some(1 as usize).as_ref());
     }
 
     #[test]
     fn test_distribute_uses_minimum_steps() {
-        #[derive(FromPrimitive, ToPrimitive, Debug, Copy, Clone, PartialEq, Eq, Unit)]
+        #[derive(FromPrimitive, ToPrimitive, Hash, Debug, Copy, Clone, PartialEq, Eq, Unit)]
         enum Coins {
             One = 1,
             Three = 3,
             Four = 4,
         }
 
-        // Greedy distribution would be [(1, Coins::Four), (2, Coins::One)]
-        assert_eq!(Coins::distribute(6), vec![(2, Coins::Three)]);
+        let res = Coins::distribute(6);
+        assert_eq!(res.get(&Coins::Three), Some(2 as usize).as_ref());
     }
 
     #[test]
@@ -110,10 +113,8 @@ mod tests {
         let mut value = 0;
         value += Two.value() * 61;
 
-        assert_eq!(
-            FooUnit::distribute_from(&[One, Two], value as usize),
-            vec![(61, Two)]
-        );
+        let res = FooUnit::distribute_from(&[One, Two], value as usize);
+        assert_eq!(res.get(&Two), Some(61 as usize).as_ref());
     }
 
     #[test]

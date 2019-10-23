@@ -1,17 +1,18 @@
-use gtk::OrientableExt;
-use gtk::Orientation::Vertical;
+use gtk::HeaderBarExt;
 use relm::Widget;
 use relm_derive::{widget, Msg};
 
-pub struct Model {}
+pub struct Model {
+    title: &'static str,
+}
 
 #[derive(Msg)]
 pub enum Msg {}
 
 #[widget]
-impl Widget for View {
-    fn model() -> Model {
-        Model {}
+impl Widget for Header {
+    fn model(title: &'static str) -> Model {
+        Model { title }
     }
 
     fn update(&mut self, event: Msg) {
@@ -19,8 +20,8 @@ impl Widget for View {
     }
 
     view! {
-        gtk::Box {
-            orientation: Vertical,
+        gtk::HeaderBar {
+            title: Some(self.model.title)
         }
     }
 }
