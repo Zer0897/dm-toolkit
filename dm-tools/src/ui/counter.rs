@@ -126,16 +126,18 @@ where
             CounterMsg::Increment(u) => self.model.count.add_units(1, u),
             CounterMsg::Decrement(u) => self.model.count.sub_units(1, u),
             CounterMsg::Changed(u) => {
-                let current_count = self.model.count.get_count(u);
-                let changed = self.model.counters.iter().find(|c| c.unit == u).map(|c| {
-                    c.entry
-                        .get_text()
-                        .map(|v| v.parse::<usize>().unwrap_or_else(|_| current_count))
-                        .unwrap_or_else(|| current_count)
-                });
+                let text = self
+                    .model
+                    .counters
+                    .iter()
+                    .find(|c| c.unit == u)
+                    .map(|c| c.entry.get_text());
 
-                if let Some(changed) = changed {
-                    self.model.count.set_count(changed, u);
+                if let Some(Some(text)) = text {
+                    self.model
+                        .count
+                        .set_from_string(&text, u)
+                        .unwrap_or_default();
                 }
             }
         }

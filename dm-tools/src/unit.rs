@@ -133,6 +133,22 @@ where
             }
         }
     }
+
+    pub fn set_from_string(&mut self, value: &str, unit: T) -> Result<(), std::num::ParseIntError> {
+        if value.starts_with('-') || value.starts_with('+') {
+            let count: usize = value[1..].parse()?;
+            match value.chars().nth(0).unwrap() {
+                '-' => self.sub_units(count, unit),
+                '+' => self.add_units(count, unit),
+                _ => panic!("Somebody fucked up"),
+            };
+        } else {
+            let count: usize = value.parse()?;
+            self.set_count(count, unit);
+        }
+
+        Ok(())
+    }
 }
 
 #[cfg(test)]
