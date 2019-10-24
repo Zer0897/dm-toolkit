@@ -4,7 +4,7 @@ use gtk::{ButtonExt, ContainerExt, EntryExt, OrientableExt, WidgetExt};
 use relm::{connect, Relm, Update, Widget};
 use relm_derive::{widget, Msg};
 
-use crate::unit::Unit;
+use crate::unit;
 
 use self::Msg::*;
 
@@ -65,7 +65,7 @@ impl Widget for Counter {
 
 struct CountBase<T>
 where
-    T: Unit,
+    T: unit::Unit,
 {
     entry: gtk::Entry,
     #[allow(dead_code)]
@@ -78,7 +78,7 @@ where
 #[derive(Msg, Debug)]
 pub enum CounterMsg<T>
 where
-    T: Unit,
+    T: unit::Unit,
 {
     Increment(T),
     Decrement(T),
@@ -87,17 +87,17 @@ where
 
 pub struct UnitCounterModel<T>
 where
-    T: Unit,
+    T: unit::Unit,
 {
-    units: &'static [T],
+    units: &'static [UnitView<T>],
     counters: Vec<CountBase<T>>,
-    count: usize,
+    count: unit::UnitCounter<T>,
     _unit: std::marker::PhantomData<T>,
 }
 
 pub struct UnitCounter<T>
 where
-    T: Unit,
+    T: unit::Unit,
 {
     _unit: std::marker::PhantomData<T>,
     window: gtk::Box,
@@ -106,16 +106,16 @@ where
 
 impl<T> Update for UnitCounter<T>
 where
-    T: Unit,
+    T: unit::Unit,
 {
     type Model = UnitCounterModel<T>;
-    type ModelParam = (&'static [T]);
+    type ModelParam = (&'static [UnitView<T>]);
     type Msg = CounterMsg<T>;
 
-    fn model(_: &Relm<Self>, units: &'static [T]) -> UnitCounterModel<T> {
+    fn model(_: &Relm<Self>, units: &'static [UnitView<T>]) -> UnitCounterModel<T> {
         UnitCounterModel {
             units,
-            count: 0,
+            count: unit::UnitCounter::new(),
             counters: vec![],
             _unit: std::marker::PhantomData,
         }
@@ -123,42 +123,33 @@ where
 
     fn update(&mut self, event: CounterMsg<T>) {
         match event {
-            CounterMsg::Increment(u) => self.model.count += u.value(),
-            CounterMsg::Decrement(u) => self.model.count -= u.value(),
+            CounterMsg::Increment(u) => self.model.count.add_units(1, u),
+            CounterMsg::Decrement(u) => self.model.count.sub_units(1, u),
             CounterMsg::Changed(u) => {
-                let mut current_count = T::distribute(self.model.count);
+                let current_count = self.model.count.get_count(u);
                 let changed = self.model.counters.iter().find(|c| c.unit == u).map(|c| {
                     c.entry
                         .get_text()
-                        .map(|v| {
-                            v.parse::<usize>()
-                                .unwrap_or_else(|_| *current_count.get(&c.unit).unwrap_or(&0))
-                        })
-                        .unwrap_or_else(|| *current_count.get(&c.unit).unwrap_or(&0))
+                        .map(|v| v.parse::<usize>().unwrap_or_else(|_| current_count))
+                        .unwrap_or_else(|| current_count)
                 });
 
                 if let Some(changed) = changed {
-                    current_count
-                        .get_mut(&u)
-                        .map(|v| *v = changed)
-                        .unwrap_or_else(|| {
-                            current_count.insert(u, changed);
-                        });
+                    self.model.count.set_count(changed, u);
                 }
-                self.model.count = current_count.iter().map(|(k, v)| k.value() * v).sum();
             }
         }
-        let new_count = T::distribute(self.model.count);
+        self.model.count.redistribute();
         for counter in self.model.counters.iter_mut() {
-            let unit_count = *new_count.get(&counter.unit).unwrap_or(&0);
-            counter.entry.set_text(&unit_count.to_string());
+            let count = self.model.count.get_count(counter.unit);
+            counter.entry.set_text(&count.to_string());
         }
     }
 }
 
 impl<T> Widget for UnitCounter<T>
 where
-    T: Unit,
+    T: unit::Unit,
 {
     type Root = gtk::Box;
 
@@ -174,7 +165,8 @@ where
             let counter = gtk::Box::new(gtk::Orientation::Vertical, 1);
 
             let entry = gtk::Entry::new();
-            entry.set_text(&model.count.to_string());
+            entry.set_text(&model.count.get_count(unit.unit).to_string());
+            entry.set_alignment(0.5);
 
             let btn_inc = gtk::Button::new();
             btn_inc.set_label("+");
@@ -182,20 +174,28 @@ where
             let btn_dec = gtk::Button::new();
             btn_dec.set_label("-");
 
-            connect!(relm, entry, connect_activate(_), CounterMsg::Changed(*unit));
+            connect!(
+                relm,
+                entry,
+                connect_activate(_),
+                CounterMsg::Changed(unit.unit)
+            );
             connect!(
                 relm,
                 btn_inc,
                 connect_clicked(_),
-                CounterMsg::Increment(*unit)
+                CounterMsg::Increment(unit.unit)
             );
             connect!(
                 relm,
                 btn_dec,
                 connect_clicked(_),
-                CounterMsg::Decrement(*unit)
+                CounterMsg::Decrement(unit.unit)
             );
 
+            if unit.name.is_some() {
+                counter.add(&gtk::Label::new(unit.name));
+            };
             counter.add(&btn_inc);
             counter.add(&entry);
             counter.add(&btn_dec);
@@ -206,7 +206,7 @@ where
                 entry,
                 btn_inc,
                 btn_dec,
-                unit: *unit,
+                unit: unit.unit,
             });
 
             window.add(&counter);
@@ -219,4 +219,9 @@ where
             _unit: std::marker::PhantomData,
         }
     }
+}
+
+pub struct UnitView<T> {
+    pub unit: T,
+    pub name: Option<&'static str>,
 }

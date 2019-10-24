@@ -1,18 +1,11 @@
 use num_traits::{FromPrimitive, ToPrimitive};
 use std::collections::HashMap;
+use std::fmt::Debug;
 use std::hash::Hash;
 
 pub trait Unit
 where
-    Self: FromPrimitive
-        + ToPrimitive
-        + Eq
-        + PartialEq
-        + Sized
-        + std::fmt::Debug
-        + Copy
-        + Hash
-        + 'static,
+    Self: FromPrimitive + ToPrimitive + Eq + PartialEq + Sized + Debug + Copy + Hash + 'static,
 {
     fn variants() -> &'static [Self];
 
@@ -53,6 +46,92 @@ where
 
     fn distribute(value: usize) -> HashMap<Self, usize> {
         Self::distribute_from(Self::variants(), value)
+    }
+}
+
+pub struct UnitCounter<T>
+where
+    T: Unit,
+{
+    count: HashMap<T, usize>,
+    units: Vec<T>,
+}
+
+impl<T> UnitCounter<T>
+where
+    T: Unit,
+{
+    pub fn new() -> Self {
+        Self::new_with_units(T::variants())
+    }
+
+    pub fn new_with_units(units: &[T]) -> Self {
+        let units: Vec<T> = units.iter().cloned().collect();
+        let count: HashMap<T, usize> = units.iter().cloned().map(|u| (u, 0)).collect();
+        Self { count, units }
+    }
+
+    pub fn add(&mut self, value: usize) {
+        let count = T::distribute_from(&self.units, value);
+        for (k, v) in count.into_iter() {
+            self.add_units(v, k);
+        }
+    }
+
+    pub fn sub(&mut self, value: usize) {
+        let count = T::distribute_from(&self.units, value);
+        for (k, v) in count.into_iter() {
+            self.sub_units(v, k);
+        }
+    }
+
+    pub fn add_units(&mut self, count: usize, unit: T) {
+        self.count
+            .get_mut(&unit)
+            .map(|v| *v += count)
+            .expect("Invalid unit");
+    }
+
+    pub fn sub_units(&mut self, count: usize, unit: T) {
+        self.count
+            .get_mut(&unit)
+            .map(|v| *v = v.checked_sub(count).unwrap_or(0))
+            .expect("Invalid unit");
+    }
+
+    pub fn get_count(&self, unit: T) -> usize {
+        *self.count.get(&unit).expect("Invalid unit")
+    }
+
+    pub fn set_count(&mut self, count: usize, unit: T) {
+        self.count
+            .get_mut(&unit)
+            .map(|v| *v = count)
+            .expect("Invalid unit");
+    }
+
+    pub fn redistribute(&mut self) {
+        loop {
+            let result = self
+                .count
+                .iter()
+                .filter_map(|(unit, count)| {
+                    self.units
+                        .iter()
+                        .map(|other| (other.value() / unit.value(), other))
+                        .filter(|(div, _)| div <= count && *div > 1)
+                        .max_by_key(|(div, _)| *div)
+                        .map(|(div, other)| (*unit, *other, div, count / div))
+                })
+                .next();
+
+            if let Some((unit, other, div, quo)) = result {
+                self.add_units(quo, other);
+                self.sub_units(div * quo, unit);
+            } else {
+                break;
+            }
+        }
     }
 }
 

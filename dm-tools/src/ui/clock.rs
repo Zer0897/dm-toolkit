@@ -2,7 +2,22 @@ use relm::Widget;
 use relm_derive::{widget, Msg};
 
 use crate::time::UnitTime;
-use crate::ui::counter::UnitCounter;
+use crate::ui::counter::{UnitCounter, UnitView};
+
+const FACES: [UnitView<UnitTime>; 3] = [
+    UnitView {
+        name: Some("Hours"),
+        unit: UnitTime::Hour,
+    },
+    UnitView {
+        name: Some("Minutes"),
+        unit: UnitTime::Minute,
+    },
+    UnitView {
+        name: Some("Seconds"),
+        unit: UnitTime::Second,
+    },
+];
 
 pub struct Model {}
 
@@ -21,7 +36,7 @@ impl Widget for Clock {
 
     view! {
         gtk::Box {
-            UnitCounter<UnitTime>(&[UnitTime::Hour, UnitTime::Minute, UnitTime::Second]) {}
+            UnitCounter<UnitTime>(&FACES) {}
         }
     }
 }
