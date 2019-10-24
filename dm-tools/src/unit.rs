@@ -93,10 +93,33 @@ where
     }
 
     pub fn sub_units(&mut self, count: usize, unit: T) {
-        self.count
-            .get_mut(&unit)
-            .map(|v| *v = v.checked_sub(count).unwrap_or(0))
-            .expect("Invalid unit");
+        let curr = self.get_count(unit);
+        if count <= curr {
+            self.count
+                .get_mut(&unit)
+                .map(|v| *v -= count)
+                .expect("Invalid unit");
+        } else {
+            let other = self
+                .units
+                .iter()
+                .filter(|other| other.value() > unit.value())
+                .min_by_key(|other| other.value())
+                .cloned();
+
+            if let Some(other) = other {
+                let other_count = match count * unit.value() / other.value() {
+                    0 => 1,
+                    val => val,
+                };
+                self.sub_units(other_count, other);
+
+                let count = curr + (other.value() * other_count) / unit.value() - count;
+                self.set_count(count, unit);
+            } else {
+                panic!("Not enough!")
+            }
+        }
     }
 
     pub fn get_count(&self, unit: T) -> usize {
