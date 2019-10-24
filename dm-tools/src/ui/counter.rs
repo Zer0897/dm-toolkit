@@ -1,7 +1,7 @@
 use gtk::prelude::EditableSignals;
 use gtk::Orientation::Vertical;
-use gtk::{ButtonExt, ContainerExt, EntryExt, OrientableExt, WidgetExt};
-use relm::{connect, Relm, Update, Widget};
+use gtk::{ButtonExt, ContainerExt, EntryExt, Inhibit, OrientableExt, WidgetExt};
+use relm::{connect, connect_stream, Relm, Update, Widget};
 use relm_derive::{widget, Msg};
 
 use crate::unit;
@@ -181,6 +181,12 @@ where
                 entry,
                 connect_activate(_),
                 CounterMsg::Changed(unit.unit)
+            );
+            connect!(
+                relm,
+                entry,
+                connect_focus_out_event(_, _),
+                return (CounterMsg::Changed(unit.unit), Inhibit(false))
             );
             connect!(
                 relm,
