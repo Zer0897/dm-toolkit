@@ -93,7 +93,7 @@ where
     pub fn add(&mut self, value: i64) -> Result<(), CountError> {
         let count = T::distribute_from(&self.units, value.abs() as usize);
         for (k, v) in count.into_iter() {
-            self.add_units(v, &k)?;
+            self.add_units(v * value.signum(), &k)?;
         }
         Ok(())
     }
@@ -116,13 +116,13 @@ where
             .map_or_else(|| Err(CountError::UnitNotFound), |v| Ok(*v))
     }
 
-    pub fn get_mut_count(&mut self, unit: &T) -> Result<&mut i64, CountError> {
+    fn get_mut_count(&mut self, unit: &T) -> Result<&mut i64, CountError> {
         self.count
             .get_mut(unit)
             .map_or_else(|| Err(CountError::UnitNotFound), |v| Ok(v))
     }
 
-    pub fn set_count(&mut self, count: i64, unit: &T) -> Result<(), CountError> {
+    pub fn set_units(&mut self, count: i64, unit: &T) -> Result<(), CountError> {
         self.get_mut_count(unit).map(|v| *v = count)
     }
 
@@ -158,7 +158,7 @@ where
 
     pub fn reset(&mut self, units: &[T]) -> Result<(), CountError> {
         for unit in units.iter() {
-            self.set_count(0, unit)?;
+            self.set_units(0, unit)?;
         }
         Ok(())
     }
@@ -177,88 +177,11 @@ where
             }
         } else {
             if let Ok(count) = value.parse::<i64>() {
-                self.set_count(count, unit)?;
+                self.set_units(count, unit)?;
             } else {
                 return Err(CountError::InvalidValue);
             }
         }
         Ok(())
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::unit::tests::FooUnit::*;
-    use dm_tools_derive::Unit;
-    use num_derive::{FromPrimitive, ToPrimitive};
-
-    #[derive(
-        FromPrimitive, ToPrimitive, Debug, Hash, Copy, Clone, PartialEq, Eq, Unit, Ord, PartialOrd,
-    )]
-    enum FooUnit {
-        One = 1,
-        Two = 2,
-        Three = 3,
-    }
-
-    #[test]
-    fn test_distribute_from() {
-        let mut value = 0;
-        value += Two.value();
-        value += One.value();
-
-        let res = FooUnit::distribute_from(&[One, Two], value as usize);
-        assert_eq!(res.get(&Two), Some(1 as i64).as_ref());
-        assert_eq!(res.get(&One), Some(1 as i64).as_ref());
-    }
-
-    #[test]
-    fn test_distribute() {
-        let mut value = 0;
-        value += Two.value();
-        value += One.value();
-
-        let res = FooUnit::distribute(value as usize);
-        assert_eq!(res.get(&Three), Some(1 as i64).as_ref());
-    }
-
-    #[test]
-    fn test_distribute_uses_minimum_steps() {
-        #[derive(
-            FromPrimitive,
-            ToPrimitive,
-            Hash,
-            Debug,
-            Copy,
-            Clone,
-            PartialEq,
-            Eq,
-            Unit,
-            Ord,
-            PartialOrd,
-        )]
-        enum Coins {
-            One = 1,
-            Three = 3,
-            Four = 4,
-        }
-
-        let res = Coins::distribute(6);
-        assert_eq!(res.get(&Coins::Three), Some(2 as i64).as_ref());
-    }
-
-    #[test]
-    fn test_distribute_from_one_unit() {
-        let mut value = 0;
-        value += Two.value() * 61;
-
-        let res = FooUnit::distribute_from(&[One, Two], value as usize);
-        assert_eq!(res.get(&Two), Some(61 as i64).as_ref());
-    }
-
-    #[test]
-    fn test_convert_value() {
-        assert_eq!(One.value() * 100 / Two.value(), 50);
     }
 }
