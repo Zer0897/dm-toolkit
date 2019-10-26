@@ -1,7 +1,6 @@
+use gdk::enums::key;
 use gdk::{EventMask, ScrollDirection};
-use gtk::{
-    ButtonExt, ContainerExt, EditableExt, Entry, EntryExt, Inhibit, WidgetExt, WidgetExtManual,
-};
+use gtk::{ButtonExt, ContainerExt, EditableExt, EntryExt, Inhibit, WidgetExt, WidgetExtManual};
 use relm::{connect, connect_stream, Relm, Update, Widget};
 use relm_derive::Msg;
 
@@ -26,9 +25,10 @@ where
 {
     Increment(T),
     Decrement(T),
-    Changed(Entry, T),
-    Focused(Entry),
-    Scrolled(ScrollDirection, T),
+    Change(gtk::Entry, T),
+    Focus(gtk::Entry),
+    Scroll(ScrollDirection, T),
+    KeyPress(key::Key, T),
 }
 
 pub struct UnitCounterModel<T>
@@ -69,13 +69,13 @@ where
 
     fn update(&mut self, event: CounterMsg<T>) {
         match event {
-            CounterMsg::Increment(unit) | CounterMsg::Scrolled(ScrollDirection::Up, unit) => {
+            CounterMsg::Increment(unit) | CounterMsg::Scroll(ScrollDirection::Up, unit) => {
                 self.model.count.add_units(1, &unit).unwrap_or_default()
             }
-            CounterMsg::Decrement(unit) | CounterMsg::Scrolled(ScrollDirection::Down, unit) => {
+            CounterMsg::Decrement(unit) | CounterMsg::Scroll(ScrollDirection::Down, unit) => {
                 self.model.count.sub_units(1, &unit).unwrap_or_default()
             }
-            CounterMsg::Changed(entry, unit) => {
+            CounterMsg::Change(entry, unit) => {
                 if let Some(text) = entry.get_text() {
                     self.model
                         .count
@@ -83,8 +83,18 @@ where
                         .unwrap_or_default();
                 }
             }
-            CounterMsg::Focused(entry) => {
+            CounterMsg::Focus(entry) => {
                 entry.select_region(0, -1);
+            }
+            CounterMsg::KeyPress(key::Escape, unit) => {
+                self.model
+                    .counters
+                    .iter()
+                    .find(|c| c.unit == unit)
+                    .map(|c| {
+                        c.entry
+                            .set_text(&self.model.count.get_count(&unit).unwrap().to_string())
+                    });
             }
             _ => {}
         };
@@ -135,29 +145,35 @@ where
                 relm,
                 entry,
                 connect_activate(entry),
-                CounterMsg::Changed(entry.clone(), unit.unit)
+                CounterMsg::Change(entry.clone(), unit.unit)
             );
             connect!(
                 relm,
                 entry,
                 connect_focus_out_event(entry, _),
-                return (
-                    CounterMsg::Changed(entry.clone(), unit.unit),
-                    Inhibit(false)
-                )
+                return (CounterMsg::Change(entry.clone(), unit.unit), Inhibit(false))
             );
             connect!(
                 relm,
                 entry,
                 connect_focus_in_event(widget, _),
-                return (CounterMsg::Focused(widget.clone()), Inhibit(false))
+                return (CounterMsg::Focus(widget.clone()), Inhibit(false))
             );
             connect!(
                 relm,
                 entry,
                 connect_scroll_event(_, scroll),
                 return (
-                    CounterMsg::Scrolled(scroll.get_direction(), unit.unit),
+                    CounterMsg::Scroll(scroll.get_direction(), unit.unit),
+                    Inhibit(false)
+                )
+            );
+            connect!(
+                relm,
+                counter,
+                connect_key_press_event(_, event),
+                return (
+                    CounterMsg::KeyPress(event.get_keyval(), unit.unit),
                     Inhibit(false)
                 )
             );
