@@ -3,7 +3,9 @@ use num_derive::{FromPrimitive, ToPrimitive};
 
 use crate::unit::Unit;
 
-#[derive(Debug, Copy, Clone, Hash, Eq, PartialEq, Unit, FromPrimitive, ToPrimitive)]
+#[derive(
+    Debug, Copy, Clone, Hash, Eq, PartialEq, Unit, FromPrimitive, ToPrimitive, Ord, PartialOrd,
+)]
 pub enum UnitTime {
     Second = 1,
     Minute = 60,
@@ -17,14 +19,14 @@ pub enum UnitTime {
 /// A tool for managing time and its units.
 #[derive(Eq, PartialEq, Ord, PartialOrd, Debug, Clone)]
 pub struct Time {
-    pub value: usize,
+    pub value: i64,
 }
 
 impl Time {
     pub fn new() -> Self {
         Self { value: 0 }
     }
-    pub fn from(num: usize, unit: UnitTime) -> Self {
+    pub fn from(num: i64, unit: UnitTime) -> Self {
         Self {
             value: unit.value() * num,
         }

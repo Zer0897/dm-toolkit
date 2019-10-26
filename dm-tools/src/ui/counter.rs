@@ -1,67 +1,8 @@
-use gtk::prelude::EditableSignals;
-use gtk::Orientation::Vertical;
-use gtk::{ButtonExt, ContainerExt, EntryExt, Inhibit, OrientableExt, WidgetExt};
+use gtk::{ButtonExt, ContainerExt, EntryExt, Inhibit, WidgetExt};
 use relm::{connect, connect_stream, Relm, Update, Widget};
-use relm_derive::{widget, Msg};
+use relm_derive::Msg;
 
 use crate::unit;
-
-use self::Msg::*;
-
-pub struct Model {
-    counter: i32,
-}
-
-#[derive(Msg)]
-pub enum Msg {
-    Decrement,
-    Increment,
-    Changed,
-}
-
-#[widget]
-impl Widget for Counter {
-    fn model() -> Model {
-        Model { counter: 0 }
-    }
-
-    fn update(&mut self, event: Msg) {
-        match event {
-            Decrement => self.model.counter -= 1,
-            Increment => self.model.counter += 1,
-            Changed => {
-                self.model.counter = self
-                    .entry
-                    .get_text()
-                    .map(|v| v.parse().unwrap_or_else(|_| self.model.counter))
-                    .unwrap_or_else(|| self.model.counter)
-            }
-        }
-    }
-
-    view! {
-        gtk::Box {
-            name: "widget",
-            orientation: Vertical,
-            gtk::Button {
-                label: "+",
-                name: "inc_button",
-                clicked => Increment,
-            },
-            #[name="entry"]
-            gtk::Entry {
-                text: &self.model.counter.to_string(),
-                alignment: 0.5,
-                changed => Changed,
-            },
-            gtk::Button {
-                label: "-",
-                name: "dec_button",
-                clicked => Decrement,
-            },
-        }
-    }
-}
 
 struct CountBase<T>
 where
@@ -123,8 +64,8 @@ where
 
     fn update(&mut self, event: CounterMsg<T>) {
         match event {
-            CounterMsg::Increment(u) => self.model.count.add_units(1, u),
-            CounterMsg::Decrement(u) => self.model.count.sub_units(1, u),
+            CounterMsg::Increment(u) => self.model.count.add_units(1, &u).unwrap_or_default(),
+            CounterMsg::Decrement(u) => self.model.count.sub_units(1, &u).unwrap_or_default(),
             CounterMsg::Changed(u) => {
                 let text = self
                     .model
@@ -136,15 +77,16 @@ where
                 if let Some(Some(text)) = text {
                     self.model
                         .count
-                        .set_from_string(&text, u)
+                        .set_from_string(&text, &u)
                         .unwrap_or_default();
                 }
             }
-        }
-        self.model.count.redistribute();
+        };
+        self.model.count.redistribute().unwrap_or_default();
         for counter in self.model.counters.iter_mut() {
-            let count = self.model.count.get_count(counter.unit);
-            counter.entry.set_text(&count.to_string());
+            if let Ok(count) = self.model.count.get_count(&counter.unit) {
+                counter.entry.set_text(&count.to_string());
+            }
         }
     }
 }
@@ -167,7 +109,13 @@ where
             let counter = gtk::Box::new(gtk::Orientation::Vertical, 1);
 
             let entry = gtk::Entry::new();
-            entry.set_text(&model.count.get_count(unit.unit).to_string());
+            entry.set_text(
+                &model
+                    .count
+                    .get_count(&unit.unit)
+                    .map(|v| v.to_string())
+                    .expect("Unit"),
+            );
             entry.set_alignment(0.5);
 
             let btn_inc = gtk::Button::new();
