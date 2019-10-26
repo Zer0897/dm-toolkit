@@ -3,7 +3,9 @@ use num_derive::{FromPrimitive, ToPrimitive};
 
 use crate::unit::Unit;
 
-#[derive(Debug, Copy, Clone, Unit, FromPrimitive, ToPrimitive)]
+#[derive(
+    Debug, Copy, Clone, Hash, Eq, PartialEq, Unit, FromPrimitive, ToPrimitive, Ord, PartialOrd,
+)]
 pub enum UnitTime {
     Second = 1,
     Minute = 60,
@@ -17,14 +19,14 @@ pub enum UnitTime {
 /// A tool for managing time and its units.
 #[derive(Eq, PartialEq, Ord, PartialOrd, Debug, Clone)]
 pub struct Time {
-    pub value: usize,
+    pub value: i64,
 }
 
 impl Time {
     pub fn new() -> Self {
         Self { value: 0 }
     }
-    pub fn from(num: usize, unit: UnitTime) -> Self {
+    pub fn from(num: i64, unit: UnitTime) -> Self {
         Self {
             value: unit.value() * num,
         }
@@ -74,115 +76,5 @@ impl Scheduler {
 
     pub fn is_active(&self, event: &Event) -> bool {
         event.start <= self.time && event.end >= self.time
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::UnitTime::*;
-    use super::*;
-
-    #[test]
-    fn test_time_compare_gt() {
-        assert_eq!(Time::from(1, Second) > Time::new(), true);
-    }
-
-    #[test]
-    fn test_time_compare_lt() {
-        assert_eq!(Time::new() < Time::from(1, Second), true);
-    }
-
-    #[test]
-    fn test_time_compare_eq() {
-        assert_eq!(Time::from(1, Second) == Time::from(1, Second), true);
-    }
-
-    #[test]
-    fn test_schedule_not_active_before_time() {
-        let mut schedule = Scheduler::new();
-        let start = Time::from(1, Second);
-        let end = Time::from(2, Second);
-        schedule.push(Event {
-            start: start,
-            end: end,
-            id: 1,
-        });
-        assert_eq!(
-            schedule.active_events().collect::<Vec<_>>(),
-            Vec::<&Event>::new()
-        );
-    }
-
-    #[test]
-    fn test_schedule_active_in_time() {
-        let mut schedule = Scheduler::new();
-        let start = Time::from(1, Second);
-        let end = Time::from(2, Second);
-        let event = Event {
-            start: start,
-            end: end,
-            id: 1,
-        };
-        schedule.push(event.clone());
-        schedule.time.value += Second.value();
-        assert_eq!(schedule.active_events().collect::<Vec<_>>(), vec![&event]);
-    }
-
-    #[test]
-    fn test_schedule_not_active_after_time() {
-        let mut schedule = Scheduler::new();
-        let start = Time::from(1, Second);
-        let end = Time::from(2, Second);
-        let event = Event {
-            start: start,
-            end: end,
-            id: 1,
-        };
-        schedule.push(event.clone());
-        schedule.time.value += Second.value() * 3;
-        assert_eq!(
-            schedule.active_events().collect::<Vec<_>>(),
-            Vec::<&Event>::new()
-        );
-    }
-
-    #[test]
-    fn test_events_by_id() {
-        let mut schedule = Scheduler::new();
-        let event = Event {
-            start: Time::from(1, Second),
-            end: Time::from(2, Second),
-            id: 1,
-        };
-        let event2 = Event {
-            start: Time::from(1, Second),
-            end: Time::from(2, Second),
-            id: 2,
-        };
-        schedule.push(event.clone());
-        schedule.push(event2.clone());
-        assert_eq!(schedule.events_by_id(2).collect::<Vec<_>>(), vec![&event2]);
-    }
-
-    #[test]
-    fn test_active_events_by_id() {
-        let mut schedule = Scheduler::new();
-        let event = Event {
-            start: Time::from(3, Second),
-            end: Time::from(4, Second),
-            id: 2,
-        };
-        let event2 = Event {
-            start: Time::from(1, Second),
-            end: Time::from(2, Second),
-            id: 2,
-        };
-        schedule.push(event.clone());
-        schedule.push(event2.clone());
-        schedule.time.value += Second.value();
-        assert_eq!(
-            schedule.active_events_by_id(2).collect::<Vec<_>>(),
-            vec![&event2]
-        );
     }
 }

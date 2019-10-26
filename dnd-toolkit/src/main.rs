@@ -5,7 +5,6 @@ use gtk::{Inhibit, NotebookExt, WidgetExt};
 use relm::{connect, connect_stream, Widget};
 use relm_derive::{widget, Msg};
 
-use dm_tools::ui::view::View;
 use encounter_view::EncounterView;
 use time_view::TimeView;
 
@@ -44,7 +43,7 @@ impl Widget for Win {
                         tab_label: Some("Encounter")
                     }
                 },
-                View {
+                gtk::Box {
                     child: {
                         tab_label: Some("Character")
                     }

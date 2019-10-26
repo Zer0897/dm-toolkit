@@ -1,8 +1,6 @@
 use relm::Widget;
 use relm_derive::{widget, Msg};
 
-use dm_tools::ui::view::View;
-
 pub struct Model {}
 
 #[derive(Msg)]
@@ -19,7 +17,7 @@ impl Widget for EncounterView {
     }
 
     view! {
-        View {
+        gtk::Box {
         }
     }
 }
