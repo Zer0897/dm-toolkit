@@ -1,4 +1,7 @@
-use gtk::{ButtonExt, ContainerExt, EntryExt, Inhibit, WidgetExt};
+use gdk::{EventMask, ScrollDirection};
+use gtk::{
+    ButtonExt, ContainerExt, EditableExt, Entry, EntryExt, Inhibit, WidgetExt, WidgetExtManual,
+};
 use relm::{connect, connect_stream, Relm, Update, Widget};
 use relm_derive::Msg;
 
@@ -23,7 +26,9 @@ where
 {
     Increment(T),
     Decrement(T),
-    Changed(T),
+    Changed(Entry, T),
+    Focused(Entry),
+    Scrolled(ScrollDirection, T),
 }
 
 pub struct UnitCounterModel<T>
@@ -64,23 +69,24 @@ where
 
     fn update(&mut self, event: CounterMsg<T>) {
         match event {
-            CounterMsg::Increment(u) => self.model.count.add_units(1, &u).unwrap_or_default(),
-            CounterMsg::Decrement(u) => self.model.count.sub_units(1, &u).unwrap_or_default(),
-            CounterMsg::Changed(u) => {
-                let text = self
-                    .model
-                    .counters
-                    .iter()
-                    .find(|c| c.unit == u)
-                    .map(|c| c.entry.get_text());
-
-                if let Some(Some(text)) = text {
+            CounterMsg::Increment(unit) | CounterMsg::Scrolled(ScrollDirection::Up, unit) => {
+                self.model.count.add_units(1, &unit).unwrap_or_default()
+            }
+            CounterMsg::Decrement(unit) | CounterMsg::Scrolled(ScrollDirection::Down, unit) => {
+                self.model.count.sub_units(1, &unit).unwrap_or_default()
+            }
+            CounterMsg::Changed(entry, unit) => {
+                if let Some(text) = entry.get_text() {
                     self.model
                         .count
-                        .set_from_string(&text, &u)
+                        .set_from_string(&text, &unit)
                         .unwrap_or_default();
                 }
             }
+            CounterMsg::Focused(entry) => {
+                entry.select_region(0, -1);
+            }
+            _ => {}
         };
         self.model.count.redistribute().unwrap_or_default();
         for counter in self.model.counters.iter_mut() {
@@ -116,7 +122,8 @@ where
                     .map(|v| v.to_string())
                     .expect("Unit"),
             );
-            entry.set_alignment(0.5);
+            entry.set_input_purpose(gtk::InputPurpose::Number);
+            entry.add_events(EventMask::SCROLL_MASK);
 
             let btn_inc = gtk::Button::new();
             btn_inc.set_label("+");
@@ -127,14 +134,32 @@ where
             connect!(
                 relm,
                 entry,
-                connect_activate(_),
-                CounterMsg::Changed(unit.unit)
+                connect_activate(entry),
+                CounterMsg::Changed(entry.clone(), unit.unit)
             );
             connect!(
                 relm,
                 entry,
-                connect_focus_out_event(_, _),
-                return (CounterMsg::Changed(unit.unit), Inhibit(false))
+                connect_focus_out_event(entry, _),
+                return (
+                    CounterMsg::Changed(entry.clone(), unit.unit),
+                    Inhibit(false)
+                )
+            );
+            connect!(
+                relm,
+                entry,
+                connect_focus_in_event(widget, _),
+                return (CounterMsg::Focused(widget.clone()), Inhibit(false))
+            );
+            connect!(
+                relm,
+                entry,
+                connect_scroll_event(_, scroll),
+                return (
+                    CounterMsg::Scrolled(scroll.get_direction(), unit.unit),
+                    Inhibit(false)
+                )
             );
             connect!(
                 relm,
