@@ -1,9 +1,12 @@
 use gdk::enums::key;
 use gdk::{EventMask, ScrollDirection};
-use gtk::{ButtonExt, ContainerExt, EditableExt, EntryExt, Inhibit, WidgetExt, WidgetExtManual};
-use relm::{connect, connect_stream, Relm, Update, Widget};
-use relm_derive::Msg;
+use gtk::{
+    ButtonExt, ContainerExt, EditableExt, EntryExt, Inhibit, LabelExt, WidgetExt, WidgetExtManual,
+};
+use relm::{connect, connect_stream, Component, Relm, Update, Widget};
+use relm_derive::{widget, Msg};
 
+use crate::ui::edit::EditView;
 use crate::unit;
 
 struct CountBase<T>
@@ -19,7 +22,7 @@ where
 }
 
 #[derive(Msg, Debug)]
-pub enum CounterMsg<T>
+pub enum UnitCounterMsg<T>
 where
     T: unit::Unit,
 {
@@ -56,7 +59,7 @@ where
 {
     type Model = UnitCounterModel<T>;
     type ModelParam = (&'static [UnitView<T>]);
-    type Msg = CounterMsg<T>;
+    type Msg = UnitCounterMsg<T>;
 
     fn model(_: &Relm<Self>, units: &'static [UnitView<T>]) -> UnitCounterModel<T> {
         UnitCounterModel {
@@ -67,15 +70,16 @@ where
         }
     }
 
-    fn update(&mut self, event: CounterMsg<T>) {
+    fn update(&mut self, event: UnitCounterMsg<T>) {
         match event {
-            CounterMsg::Increment(unit) | CounterMsg::Scroll(ScrollDirection::Up, unit) => {
+            UnitCounterMsg::Increment(unit) | UnitCounterMsg::Scroll(ScrollDirection::Up, unit) => {
                 self.model.count.add_units(1, &unit).unwrap_or_default()
             }
-            CounterMsg::Decrement(unit) | CounterMsg::Scroll(ScrollDirection::Down, unit) => {
+            UnitCounterMsg::Decrement(unit)
+            | UnitCounterMsg::Scroll(ScrollDirection::Down, unit) => {
                 self.model.count.sub_units(1, &unit).unwrap_or_default()
             }
-            CounterMsg::Change(entry, unit) => {
+            UnitCounterMsg::Change(entry, unit) => {
                 if let Some(text) = entry.get_text() {
                     self.model
                         .count
@@ -83,10 +87,10 @@ where
                         .unwrap_or_default();
                 }
             }
-            CounterMsg::Focus(entry) => {
+            UnitCounterMsg::Focus(entry) => {
                 entry.select_region(0, -1);
             }
-            CounterMsg::KeyPress(key::Escape, unit) => {
+            UnitCounterMsg::KeyPress(key::Escape, unit) => {
                 self.model
                     .counters
                     .iter()
@@ -145,26 +149,29 @@ where
                 relm,
                 entry,
                 connect_activate(entry),
-                CounterMsg::Change(entry.clone(), unit.unit)
+                UnitCounterMsg::Change(entry.clone(), unit.unit)
             );
             connect!(
                 relm,
                 entry,
                 connect_focus_out_event(entry, _),
-                return (CounterMsg::Change(entry.clone(), unit.unit), Inhibit(false))
+                return (
+                    UnitCounterMsg::Change(entry.clone(), unit.unit),
+                    Inhibit(false)
+                )
             );
             connect!(
                 relm,
                 entry,
                 connect_focus_in_event(widget, _),
-                return (CounterMsg::Focus(widget.clone()), Inhibit(false))
+                return (UnitCounterMsg::Focus(widget.clone()), Inhibit(false))
             );
             connect!(
                 relm,
                 entry,
                 connect_scroll_event(_, scroll),
                 return (
-                    CounterMsg::Scroll(scroll.get_direction(), unit.unit),
+                    UnitCounterMsg::Scroll(scroll.get_direction(), unit.unit),
                     Inhibit(false)
                 )
             );
@@ -173,7 +180,7 @@ where
                 counter,
                 connect_key_press_event(_, event),
                 return (
-                    CounterMsg::KeyPress(event.get_keyval(), unit.unit),
+                    UnitCounterMsg::KeyPress(event.get_keyval(), unit.unit),
                     Inhibit(false)
                 )
             );
@@ -181,13 +188,13 @@ where
                 relm,
                 btn_inc,
                 connect_clicked(_),
-                CounterMsg::Increment(unit.unit)
+                UnitCounterMsg::Increment(unit.unit)
             );
             connect!(
                 relm,
                 btn_dec,
                 connect_clicked(_),
-                CounterMsg::Decrement(unit.unit)
+                UnitCounterMsg::Decrement(unit.unit)
             );
 
             if unit.name.is_some() {
@@ -221,4 +228,85 @@ where
 pub struct UnitView<T> {
     pub unit: T,
     pub name: Option<&'static str>,
+}
+
+pub struct CounterModel {}
+
+#[derive(Msg)]
+pub enum CounterMsg {
+    Increment,
+    Decrement,
+    Change(String),
+}
+
+#[widget]
+impl Widget for CounterLabel {
+    fn model() -> CounterModel {
+        CounterModel {}
+    }
+
+    fn update(&mut self, event: CounterMsg) {
+        match event {
+            CounterMsg::Change(text) => self.label.set_text(&text),
+            _ => {}
+        }
+    }
+
+    view! {
+        #[name="label"]
+        gtk::Label {
+            text: "Foo"
+        }
+    }
+}
+
+pub struct CounterEditModel {
+    view: Component<CounterLabel>,
+}
+
+#[widget]
+impl Widget for CounterEdit {
+    fn model(view: Component<CounterLabel>) -> CounterEditModel {
+        CounterEditModel { view }
+    }
+
+    fn update(&mut self, event: CounterMsg) {
+        match event {
+            event => self.model.view.stream().emit(event),
+        }
+    }
+
+    view! {
+        gtk::Box {
+            #[name="entry"]
+            gtk::Entry {
+                activate(entry) => CounterMsg::Change(entry.get_text().expect("Entry text").to_string()),
+            },
+            gtk::Button {
+                label: "+",
+                clicked => CounterMsg::Increment,
+            },
+            gtk::Button {
+                label: "-",
+                clicked => CounterMsg::Decrement,
+            },
+        }
+    }
+}
+
+#[widget]
+impl Widget for Counter {
+    fn model() -> CounterModel {
+        CounterModel {}
+    }
+
+    fn update(&mut self, event: CounterMsg) {
+        match event {
+            _ => {}
+        }
+    }
+
+    view! {
+        EditView<CounterLabel, CounterEdit> {}
+    }
 }

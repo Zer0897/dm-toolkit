@@ -163,14 +163,14 @@ where
         Ok(())
     }
 
-    // TODO Refactor?
+    // TODO Refactor
     pub fn set_from_string(&mut self, value: &str, unit: &T) -> Result<(), CountError> {
         if value.starts_with('-') || value.starts_with('+') {
             if let Ok(count) = value[1..].parse::<i64>() {
                 match value.chars().nth(0).unwrap() {
                     '-' => self.sub_units(count, unit)?,
                     '+' => self.add_units(count, unit)?,
-                    _ => panic!("Somebody fucked up"),
+                    _ => unreachable!(),
                 };
             } else {
                 return Err(CountError::InvalidValue);
