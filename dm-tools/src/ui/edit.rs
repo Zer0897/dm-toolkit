@@ -1,6 +1,6 @@
 use gdk::enums::key;
 use gtk::{Inhibit, OrientableExt, RevealerExt, WidgetExt};
-use relm::{connect, connect_stream, Component, ContainerWidget, Widget};
+use relm::{connect, connect_stream, init, Component, ContainerWidget, Widget};
 use relm_derive::{widget, Msg};
 
 #[derive(Msg)]
@@ -14,31 +14,29 @@ pub enum EditMsg {
 
 pub struct EditModel<T, E>
 where
-    T: Widget<ModelParam = ()> + 'static,
-    E: Widget<ModelParam = Component<T>> + 'static,
+    T: Widget<ModelParam = Option<Component<E>>> + 'static,
+    E: Widget<ModelParam = Option<Component<T>>> + 'static,
 {
-    display: Option<Component<T>>,
-    editor: Option<Component<E>>,
+    display: Component<T>,
+    editor: Component<E>,
 }
 
 #[widget]
 impl<T, E> Widget for EditView<T, E>
 where
-    T: Widget<ModelParam = ()> + 'static,
-    E: Widget<ModelParam = Component<T>> + 'static,
+    T: Widget<ModelParam = Option<Component<E>>> + 'static,
+    E: Widget<ModelParam = Option<Component<T>>> + 'static,
 {
     fn model() -> EditModel<T, E> {
         EditModel {
-            display: None,
-            editor: None,
+            display: init::<T>(None).expect("Display"),
+            editor: init::<E>(None).expect("Editor"),
         }
     }
 
     fn init_view(&mut self) {
-        let display = self.view.add_widget::<T>(());
-        let editor = self.edit.add_widget::<E>(display.clone());
-        self.model.editor = Some(editor);
-        self.model.display = Some(display);
+        self.model.display = self.view.add_widget::<T>(Some(self.model.editor.clone()));
+        self.model.editor = self.edit.add_widget::<E>(Some(self.model.display.clone()));
     }
 
     fn update(&mut self, event: EditMsg) {
@@ -66,18 +64,3 @@ where
         }
     }
 }
-
-// impl<T, E> Container for EditView<T, E>
-// where
-//     T: Widget<Msg = DisplayMsg, ModelParam = ()> + 'static,
-//     E: Widget<ModelParam = Relm<Self>> + 'static,
-// {
-//     type Container = gtk::Revealer;
-//     type Containers = ();
-
-//     fn container(&self) -> &Self::Container {
-//         &self.edit
-//     }
-
-//     fn other_containers(&self) -> Self::Containers {}
-// }

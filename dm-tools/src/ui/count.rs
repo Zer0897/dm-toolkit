@@ -3,7 +3,7 @@ use gdk::{EventMask, ScrollDirection};
 use gtk::{
     ButtonExt, ContainerExt, EditableExt, EntryExt, Inhibit, LabelExt, WidgetExt, WidgetExtManual,
 };
-use relm::{connect, connect_stream, Component, Relm, Update, Widget};
+use relm::{connect, connect_stream, init, Component, ContainerWidget, Relm, Update, Widget};
 use relm_derive::{widget, Msg};
 
 use crate::ui::edit::EditView;
@@ -230,24 +230,38 @@ pub struct UnitView<T> {
     pub name: Option<&'static str>,
 }
 
-pub struct CounterModel {}
-
 #[derive(Msg)]
-pub enum CounterMsg {
+pub enum CounterViewMsg {
     Increment,
     Decrement,
     Change(String),
 }
 
+pub struct CounterViewModel<T: unit::Unit> {
+    editor: Option<Component<CounterEdit<T>>>,
+}
+
 #[widget]
-impl Widget for CounterLabel {
-    fn model() -> CounterModel {
-        CounterModel {}
+impl<T> Widget for CounterView<T>
+where
+    T: unit::Unit,
+{
+    fn model(editor: Option<Component<CounterEdit<T>>>) -> CounterViewModel<T> {
+        CounterViewModel { editor }
     }
 
-    fn update(&mut self, event: CounterMsg) {
+    fn update(&mut self, event: CounterViewMsg) {
         match event {
-            CounterMsg::Change(text) => self.label.set_text(&text),
+            CounterViewMsg::Change(text) => {
+                self.label.set_text(&text);
+                if let Some(editor) = self.model.editor.as_ref() {
+                    self.label.get_text().map(|text| {
+                        editor
+                            .stream()
+                            .emit(CounterEditMsg::CurrentValue(text.to_string()))
+                    });
+                }
+            }
             _ => {}
         }
     }
@@ -260,19 +274,41 @@ impl Widget for CounterLabel {
     }
 }
 
-pub struct CounterEditModel {
-    view: Component<CounterLabel>,
+#[derive(Msg)]
+pub enum CounterEditMsg {
+    CurrentValue(String),
+    Display(CounterViewMsg),
+    Submit,
+}
+
+pub struct CounterEditModel<T: unit::Unit> {
+    display: Option<Component<CounterView<T>>>,
 }
 
 #[widget]
-impl Widget for CounterEdit {
-    fn model(view: Component<CounterLabel>) -> CounterEditModel {
-        CounterEditModel { view }
+impl<T> Widget for CounterEdit<T>
+where
+    T: unit::Unit,
+{
+    fn model(display: Option<Component<CounterView<T>>>) -> CounterEditModel<T> {
+        CounterEditModel { display }
     }
 
-    fn update(&mut self, event: CounterMsg) {
+    fn update(&mut self, event: CounterEditMsg) {
         match event {
-            event => self.model.view.stream().emit(event),
+            CounterEditMsg::CurrentValue(text) => self.entry.set_text(&text),
+            CounterEditMsg::Submit => {
+                if let Some(text) = self.entry.get_text() {
+                    let msg = CounterViewMsg::Change(text.to_string());
+                    self.update(CounterEditMsg::Display(msg));
+                }
+            }
+            CounterEditMsg::Display(msg) => {
+                self.model
+                    .display
+                    .as_ref()
+                    .map(|view| view.stream().emit(msg));
+            }
         }
     }
 
@@ -280,24 +316,45 @@ impl Widget for CounterEdit {
         gtk::Box {
             #[name="entry"]
             gtk::Entry {
-                activate(entry) => CounterMsg::Change(entry.get_text().expect("Entry text").to_string()),
+                activate(entry) => CounterEditMsg::Submit,
             },
             gtk::Button {
                 label: "+",
-                clicked => CounterMsg::Increment,
+                clicked => CounterEditMsg::Display(CounterViewMsg::Increment),
             },
             gtk::Button {
                 label: "-",
-                clicked => CounterMsg::Decrement,
+                clicked => CounterEditMsg::Display(CounterViewMsg::Decrement),
             },
         }
     }
 }
 
+#[derive(Msg)]
+pub enum CounterMsg {
+    Increment,
+    Decrement,
+    Change(String),
+}
+
+pub struct CounterModel<T: unit::Unit> {
+    units: &'static [UnitView<T>],
+    view: Component<EditView<CounterView<T>, CounterEdit<T>>>,
+}
+
 #[widget]
-impl Widget for Counter {
-    fn model() -> CounterModel {
-        CounterModel {}
+impl<T> Widget for Counter<T>
+where
+    T: unit::Unit,
+{
+    fn init_view(&mut self) {
+        self.container.add(self.model.view.widget());
+    }
+    fn model(units: &'static [UnitView<T>]) -> CounterModel<T> {
+        CounterModel {
+            units,
+            view: init::<EditView<CounterView<T>, CounterEdit<T>>>(()).expect("EditView"),
+        }
     }
 
     fn update(&mut self, event: CounterMsg) {
@@ -307,6 +364,7 @@ impl Widget for Counter {
     }
 
     view! {
-        EditView<CounterLabel, CounterEdit> {}
+        #[name="container"]
+       gtk::Box {}
     }
 }

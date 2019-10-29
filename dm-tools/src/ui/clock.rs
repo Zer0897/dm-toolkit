@@ -37,9 +37,7 @@ impl Widget for Clock {
 
     view! {
         gtk::Box {
-            // UnitCounter<UnitTime>(&FACES) {}
-            // TextDisplayView {}
-            Counter {}
+            Counter<UnitTime>(&FACES) {}
         }
     }
 }
