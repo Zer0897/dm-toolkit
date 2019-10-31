@@ -1,10 +1,22 @@
 use dm_tools_derive::Unit;
 use num_derive::{FromPrimitive, ToPrimitive};
+use strum_macros::AsStaticStr;
 
 use crate::unit::Unit;
 
 #[derive(
-    Debug, Copy, Clone, Hash, Eq, PartialEq, Unit, FromPrimitive, ToPrimitive, Ord, PartialOrd,
+    Debug,
+    Copy,
+    Clone,
+    Hash,
+    Eq,
+    PartialEq,
+    Unit,
+    FromPrimitive,
+    ToPrimitive,
+    Ord,
+    PartialOrd,
+    AsStaticStr,
 )]
 pub enum UnitTime {
     Second = 1,

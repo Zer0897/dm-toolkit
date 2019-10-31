@@ -57,14 +57,16 @@ impl Widget for ClockDisplay {
             .map(|count| format!("{:02}", count))
             .join(":");
 
-        self.label.set_markup(&text.markup_title());
+        self.label
+            .set_markup(&text.markup_bold().markup_fontsize(40));
     }
 
     view! {
         #[name="label"]
         gtk::Label {
             use_markup: true,
-            markup: &"00:00:00".markup_title()
+            // TODO Add view for year/month/day
+            markup: &"00:00:00".markup_bold().markup_fontsize(40),
         }
     }
 }

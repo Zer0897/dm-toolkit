@@ -1,16 +1,14 @@
 use gdk::enums::key;
 use gdk::{EventMask, ScrollDirection};
 use gtk::{
-    BoxExt, ButtonExt, ContainerExt, EditableExt, EntryExt, Inhibit, LabelExt, OrientableExt,
-    WidgetExt, WidgetExtManual,
+    BoxExt, ButtonExt, ContainerExt, EditableExt, EntryExt, Inhibit, OrientableExt, WidgetExt,
+    WidgetExtManual,
 };
 use relm::{
-    connect, connect_stream, init, Component, ContainerWidget, EventStream, Relm, Update, Widget,
+    connect, connect_stream, Component, ContainerWidget, EventStream, Relm, Update, Widget,
 };
 use relm_derive::{widget, Msg};
-use std::marker::PhantomData;
 
-use crate::ui::edit::EditView;
 use crate::unit;
 
 struct CountBase<T>
@@ -255,6 +253,7 @@ where
     counters: Vec<Component<CounterEdit<T>>>,
 }
 
+// TODO Add ability to increment with number keys
 #[widget]
 impl<T, E> Widget for Counter<T, E>
 where
@@ -269,7 +268,7 @@ where
     }
 
     fn subscriptions(&mut self, relm: &Relm<Self>) {
-        for unit in T::variants() {
+        for unit in T::variants().iter().rev() {
             let widget = self
                 .container
                 .add_widget::<CounterEdit<T>>((relm.stream().clone(), *unit));
@@ -316,7 +315,10 @@ where
         CounterEditModel { upstream, unit }
     }
 
-    fn init_view(&mut self) {}
+    fn init_view(&mut self) {
+        self.entry
+            .set_placeholder_text(Some(self.model.unit.as_static()));
+    }
 
     fn update(&mut self, event: CounterEditMsg) {
         match event {
@@ -347,6 +349,10 @@ where
         gtk::Box {
             orientation: gtk::Orientation::Vertical,
             spacing: 10,
+            margin_top: 10,
+            margin_bottom: 10,
+            margin_start: 10,
+            margin_end: 10,
 
             #[name="entry"]
             gtk::Entry {
@@ -360,12 +366,14 @@ where
                 gtk::Button {
                     label: "-",
                     margin_end: 5,
+                    activate => CounterEditMsg::Decrement,
                     clicked => CounterEditMsg::Decrement,
                 },
 
                 gtk::Button {
                     label: "+",
                     margin_start: 5,
+                    activate => CounterEditMsg::Increment,
                     clicked => CounterEditMsg::Increment,
                 },
             }

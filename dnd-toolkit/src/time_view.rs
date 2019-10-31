@@ -1,4 +1,4 @@
-use gtk::{BoxExt, OrientableExt, WidgetExt};
+use gtk::{OrientableExt, WidgetExt};
 use relm::Widget;
 use relm_derive::{widget, Msg};
 

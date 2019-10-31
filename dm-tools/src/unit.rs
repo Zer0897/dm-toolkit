@@ -3,6 +3,7 @@ use num_traits::{FromPrimitive, ToPrimitive};
 use std::collections::HashMap;
 use std::fmt::Debug;
 use std::hash::Hash;
+use strum::AsStaticRef;
 
 pub trait Unit:
     FromPrimitive
@@ -15,6 +16,7 @@ pub trait Unit:
     + Hash
     + Ord
     + PartialOrd
+    + AsStaticRef<str>
     + 'static
 {
     fn variants() -> &'static [Self];

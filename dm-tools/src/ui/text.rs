@@ -1,5 +1,5 @@
 use gdk::enums::key;
-use gtk::{EditableExt, EntryExt, Inhibit, LabelExt, WidgetExt};
+use gtk::{EditableExt, EntryExt, Inhibit, WidgetExt};
 use relm::{connect, connect_stream, Widget};
 use relm_derive::{widget, Msg};
 use std::fmt::Display;
@@ -11,26 +11,20 @@ pub struct TextEditModel {
 #[derive(Msg)]
 pub enum TextEditMsg {
     SelectAll,
-    // Submit,
+    Submit,
     Key(key::Key),
 }
 
 #[widget]
 impl Widget for TextEntry {
-    // fn model(view: Relm<TextDisplayView>) -> TextEditModel {
     fn model() -> TextEditModel {
-        // TextEditModel { view }
         TextEditModel {}
     }
 
     fn update(&mut self, event: TextEditMsg) {
         match event {
             TextEditMsg::SelectAll => self.entry.select_region(0, -1),
-            // TextEditMsg::Submit => {
-            //     if let Some(text) = self.entry.get_text() {
-            //         self.model.view.stream().emit(TextDisplayMsg::SetValue(text.into()))
-            //     }
-            // }
+            TextEditMsg::Submit => self.entry.select_region(0, -1),
             TextEditMsg::Key(key) => {
                 match key {
                     key::Escape => self.entry.get_text().map(|t| self.entry.set_text(&t)),
@@ -48,7 +42,7 @@ impl Widget for TextEntry {
 
             #[name="entry"]
             gtk::Entry {
-                // activate => TextEditMsg::Submit,
+                focus_out_event(_, _) => (TextEditMsg::Submit, Inhibit(false)),
             }
         }
     }
@@ -65,6 +59,10 @@ pub trait Markup: Display {
 
     fn markup_bold(&self) -> String {
         format!("<b>{}</b>", self)
+    }
+
+    fn markup_fontsize(&self, size: usize) -> String {
+        format!("<span font=\"{}\">{}</span>", size, self)
     }
 }
 
