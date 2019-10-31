@@ -49,6 +49,9 @@ impl Widget for ClockDisplay {
                 .unwrap_or_default(),
             CounterMsg::Increment(unit) => self.model.count.add_units(1, &unit).unwrap_or_default(),
             CounterMsg::Decrement(unit) => self.model.count.sub_units(1, &unit).unwrap_or_default(),
+            CounterMsg::Add(count, unit) => {
+                self.model.count.add_units(count, &unit).unwrap_or_default()
+            }
         }
         self.model.count.redistribute().unwrap_or_default();
         let text = FACES

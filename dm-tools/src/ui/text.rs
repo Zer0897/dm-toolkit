@@ -24,26 +24,23 @@ impl Widget for TextEntry {
     fn update(&mut self, event: TextEditMsg) {
         match event {
             TextEditMsg::SelectAll => self.entry.select_region(0, -1),
-            TextEditMsg::Submit => self.entry.select_region(0, -1),
+            TextEditMsg::Submit => self.entry.emit_activate(),
             TextEditMsg::Key(key) => {
                 match key {
-                    key::Escape => self.entry.get_text().map(|t| self.entry.set_text(&t)),
-                    _ => None,
+                    key::Escape => self.entry.set_text(""),
+                    _ => {}
                 };
             }
         }
     }
 
     view! {
-        gtk::EventBox {
+        #[name="entry"]
+        gtk::Entry {
             focus_in_event(_, _) => (TextEditMsg::SelectAll, Inhibit(false)),
-            // focus_out_event(_, _) => (TextEditMsg::FocusIn, Inhibit(false)),
+            focus_out_event(_, _) => (TextEditMsg::Submit, Inhibit(false)),
             key_press_event(_, event) => (TextEditMsg::Key(event.get_keyval()), Inhibit(false)),
-
-            #[name="entry"]
-            gtk::Entry {
-                focus_out_event(_, _) => (TextEditMsg::Submit, Inhibit(false)),
-            }
+            focus_out_event(_, _) => (TextEditMsg::Submit, Inhibit(false)),
         }
     }
 }
