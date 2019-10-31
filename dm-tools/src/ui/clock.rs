@@ -1,28 +1,13 @@
-use gtk::{BoxExt, LabelExt};
+use gtk::{BoxExt, LabelExt, WidgetExt};
 use itertools::Itertools;
 use relm::{Component, Widget};
 use relm_derive::{widget, Msg};
 
 use crate::time::UnitTime;
-use crate::ui::count::{Counter, CounterMsg, UnitView};
+use crate::ui::count::{Counter, CounterMsg};
 use crate::ui::edit::EditView;
 use crate::ui::text::Markup;
-use crate::unit::UnitCounter;
-
-const FACES: [UnitView<UnitTime>; 3] = [
-    UnitView {
-        name: Some("Hours"),
-        unit: UnitTime::Hour,
-    },
-    UnitView {
-        name: Some("Minutes"),
-        unit: UnitTime::Minute,
-    },
-    UnitView {
-        name: Some("Seconds"),
-        unit: UnitTime::Second,
-    },
-];
+use crate::unit::{Unit, UnitCounter};
 
 type TimeCounter = Counter<UnitTime, ClockDisplay>;
 
@@ -40,6 +25,10 @@ impl Widget for ClockDisplay {
         }
     }
 
+    fn init_view(&mut self) {
+        self.update_datetime();
+    }
+
     fn update(&mut self, event: CounterMsg<UnitTime>) {
         match event {
             CounterMsg::Change(text, unit) => self
@@ -54,23 +43,59 @@ impl Widget for ClockDisplay {
             }
         }
         self.model.count.redistribute().unwrap_or_default();
-        let text = FACES
-            .iter()
-            .map(|face| self.model.count.get_count(&face.unit).expect("Unit"))
-            .map(|count| format!("{:02}", count))
-            .join(":");
-
-        self.label
-            .set_markup(&text.markup_bold().markup_fontsize(40));
+        self.update_datetime();
     }
 
     view! {
-        #[name="label"]
-        gtk::Label {
-            use_markup: true,
-            // TODO Add view for year/month/day
-            markup: &"00:00:00".markup_bold().markup_fontsize(40),
+        gtk::Box {
+            halign: gtk::Align::Center,
+            hexpand: true,
+
+            #[name="label_date"]
+            gtk::Label {
+                halign: gtk::Align::Start,
+                use_markup: true,
+                margin_end: 80,
+            },
+
+            #[name="label_time"]
+            gtk::Label {
+                use_markup: true,
+                margin_start: 80,
+            },
         }
+    }
+}
+
+impl ClockDisplay {
+    fn update_datetime(&mut self) {
+        self.label_date.set_markup(&self.date());
+        self.label_time.set_markup(&self.time());
+    }
+
+    fn time(&self) -> String {
+        let text = [UnitTime::Hour, UnitTime::Minute, UnitTime::Second]
+            .iter()
+            .map(|unit| self.model.count.get_count(&unit).expect("Unit"))
+            .map(|count| format!("{:02}", count))
+            .join(":");
+
+        text.markup_bold().markup_fontsize(40)
+    }
+
+    fn date(&self) -> String {
+        let weeks = self.model.count.get_count(&UnitTime::Week).expect("Weeks");
+        let mut days = self.model.count.get_count(&UnitTime::Day).expect("Days");
+        days += weeks * UnitTime::Week.value() / UnitTime::Day.value();
+        let months = self
+            .model
+            .count
+            .get_count(&UnitTime::Month)
+            .expect("Months");
+        let years = self.model.count.get_count(&UnitTime::Year).expect("Years");
+
+        let text = format!("{:02}/{:02}/{:02}", months + 1, days + 1, years + 1);
+        text.markup_bold().markup_fontsize(40)
     }
 }
 

@@ -7,11 +7,6 @@ use relm_derive::{widget, Msg};
 use crate::ui::text::TextEntry;
 use crate::unit::Unit;
 
-pub struct UnitView<T> {
-    pub unit: T,
-    pub name: Option<&'static str>,
-}
-
 #[derive(Msg)]
 pub enum CounterDisplayMsg<T> {
     Count(i64, T),
