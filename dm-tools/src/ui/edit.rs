@@ -47,20 +47,16 @@ where
     }
 
     view! {
-        gtk::EventBox {
+        gtk::Box {
             key_press_event(_, event) => (EditMsg::Key(event.get_keyval()), Inhibit(false)),
+            orientation: gtk::Orientation::Vertical,
+            #[name="view"]
+            gtk::EventBox {
+                button_press_event(_, _) => (EditMsg::ToggleReveal, Inhibit(false)),
+            },
 
-
-            gtk::Box {
-                orientation: gtk::Orientation::Vertical,
-                #[name="view"]
-                gtk::EventBox {
-                    button_press_event(_, _) => (EditMsg::ToggleReveal, Inhibit(false)),
-                },
-
-                #[name="edit"]
-                gtk::Revealer {}
-            }
+            #[name="edit"]
+            gtk::Revealer {}
         }
     }
 }
