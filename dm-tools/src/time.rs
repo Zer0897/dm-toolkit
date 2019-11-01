@@ -1,10 +1,22 @@
 use dm_tools_derive::Unit;
 use num_derive::{FromPrimitive, ToPrimitive};
+use strum_macros::AsStaticStr;
 
 use crate::unit::Unit;
 
 #[derive(
-    Debug, Copy, Clone, Hash, Eq, PartialEq, Unit, FromPrimitive, ToPrimitive, Ord, PartialOrd,
+    Debug,
+    Copy,
+    Clone,
+    Hash,
+    Eq,
+    PartialEq,
+    Unit,
+    FromPrimitive,
+    ToPrimitive,
+    Ord,
+    PartialOrd,
+    AsStaticStr,
 )]
 pub enum UnitTime {
     Second = 1,
@@ -12,8 +24,8 @@ pub enum UnitTime {
     Hour = 3600,
     Day = 86400,
     Week = 604800,
-    Month = 2629800,
-    Year = 31557600,
+    Month = 2419200,
+    Year = 29030400,
 }
 
 /// A tool for managing time and its units.

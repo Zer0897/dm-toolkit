@@ -1,4 +1,4 @@
-use gtk::{BoxExt, OrientableExt, WidgetExt};
+use gtk::{OrientableExt, WidgetExt};
 use relm::Widget;
 use relm_derive::{widget, Msg};
 
@@ -21,12 +21,7 @@ impl Widget for TimeView {
     }
 
     view! {
-        gtk::Paned {
-            orientation: gtk::Orientation::Vertical,
-
-            CalendarView {},
-            ClockView {},
-        }
+        ClockView {},
     }
 }
 
@@ -46,17 +41,11 @@ impl Widget for ClockView {
     }
 
     view! {
-        gtk::Box {
+        gtk::Frame {
             halign: gtk::Align::Center,
             valign: gtk::Align::Center,
-            orientation: gtk::Orientation::Vertical,
 
-            Header("Clock") {},
-            Clock {
-                spacing: 8,
-                halign: gtk::Align::Center,
-                valign: gtk::Align::Center,
-            }
+            Clock {}
         }
     }
 }

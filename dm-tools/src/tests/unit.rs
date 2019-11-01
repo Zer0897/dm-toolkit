@@ -2,9 +2,21 @@ use crate::tests::unit::FooUnit::*;
 use crate::unit::*;
 use dm_tools_derive::Unit;
 use num_derive::{FromPrimitive, ToPrimitive};
+use strum_macros::AsStaticStr;
 
 #[derive(
-    FromPrimitive, ToPrimitive, Debug, Hash, Copy, Clone, PartialEq, Eq, Unit, Ord, PartialOrd,
+    FromPrimitive,
+    ToPrimitive,
+    Debug,
+    Hash,
+    Copy,
+    Clone,
+    PartialEq,
+    Eq,
+    Unit,
+    Ord,
+    PartialOrd,
+    AsStaticStr,
 )]
 enum FooUnit {
     One = 1,
@@ -36,7 +48,18 @@ fn distribute() {
 #[test]
 fn distribute_uses_minimum_steps() {
     #[derive(
-        FromPrimitive, ToPrimitive, Hash, Debug, Copy, Clone, PartialEq, Eq, Unit, Ord, PartialOrd,
+        FromPrimitive,
+        ToPrimitive,
+        Hash,
+        Debug,
+        Copy,
+        Clone,
+        PartialEq,
+        Eq,
+        Unit,
+        Ord,
+        PartialOrd,
+        AsStaticStr,
     )]
     enum Coins {
         One = 1,
