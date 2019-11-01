@@ -94,7 +94,7 @@ impl ClockDisplay {
             .expect("Months");
         let years = self.model.count.get_count(&UnitTime::Year).expect("Years");
 
-        let text = format!("{:02}/{:02}/{:02}", months + 1, days + 1, years + 1);
+        let text = format!("{:02}/{:02}/{:02}", months + 1, days + 1, years);
         text.markup_bold().markup_fontsize(40)
     }
 }
