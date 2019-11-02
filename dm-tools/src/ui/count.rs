@@ -137,9 +137,9 @@ where
                         .emit(CounterMsg::Decrement(self.model.unit));
                 }
             }
-            CounterEditMsg::Key(key, direction) => {
+            CounterEditMsg::Key(key, direction) if is_numberkey(&key) => {
                 let value = match key {
-                    key::_1 => 1,
+                    key::Return => 1,
                     key::_2 => 2,
                     key::_3 => 3,
                     key::_4 => 4,
@@ -148,6 +148,7 @@ where
                     key::_7 => 7,
                     key::_8 => 8,
                     key::_9 => 9,
+                    key::_1 => 10,
                     _ => 0,
                 };
                 if value != 0 {
@@ -188,7 +189,6 @@ where
                     margin_end: 5,
                     key_press_event(_, event) => (CounterEditMsg::Key(event.get_keyval(), -1), Inhibit(false)),
                     leave_notify_event(_, _) => (CounterEditMsg::FlagClear, Inhibit(false)),
-                    activate => CounterEditMsg::Decrement,
                     clicked => CounterEditMsg::Decrement,
                 },
 
@@ -198,10 +198,18 @@ where
                     margin_start: 5,
                     key_press_event(_, event) => (CounterEditMsg::Key(event.get_keyval(), 1), Inhibit(false)),
                     leave_notify_event(_, _) => (CounterEditMsg::FlagClear, Inhibit(false)),
-                    activate => CounterEditMsg::Increment,
                     clicked => CounterEditMsg::Increment,
                 },
             }
         }
+    }
+}
+
+fn is_numberkey(key: &key::Key) -> bool {
+    match *key {
+        key::_1 | key::_2 | key::_3 | key::_4 | key::_5 | key::_6 | key::_7 | key::_8 | key::_9 => {
+            true
+        }
+        _ => false,
     }
 }
