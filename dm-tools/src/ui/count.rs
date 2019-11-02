@@ -137,9 +137,10 @@ where
                         .emit(CounterMsg::Decrement(self.model.unit));
                 }
             }
-            CounterEditMsg::Key(key, direction) if is_numberkey(&key) => {
+            CounterEditMsg::Key(key, direction) => {
                 let value = match key {
                     key::Return => 1,
+                    key::_1 => 1,
                     key::_2 => 2,
                     key::_3 => 3,
                     key::_4 => 4,
@@ -148,7 +149,7 @@ where
                     key::_7 => 7,
                     key::_8 => 8,
                     key::_9 => 9,
-                    key::_1 => 10,
+                    key::_0 => 10,
                     _ => 0,
                 };
                 if value != 0 {
@@ -202,14 +203,5 @@ where
                 },
             }
         }
-    }
-}
-
-fn is_numberkey(key: &key::Key) -> bool {
-    match *key {
-        key::_1 | key::_2 | key::_3 | key::_4 | key::_5 | key::_6 | key::_7 | key::_8 | key::_9 => {
-            true
-        }
-        _ => false,
     }
 }
