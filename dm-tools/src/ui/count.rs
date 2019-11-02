@@ -82,9 +82,9 @@ pub struct CounterEditModel<T>
 where
     T: Unit,
 {
-    upstream: EventStream<CounterMsg<T>>,
+    stream: EventStream<CounterMsg<T>>,
     unit: T,
-    key_flag: bool,
+    key_pressed: bool,
 }
 
 #[widget]
@@ -92,11 +92,11 @@ impl<T> Widget for CounterEdit<T>
 where
     T: Unit,
 {
-    fn model((upstream, unit): (EventStream<CounterMsg<T>>, T)) -> CounterEditModel<T> {
+    fn model((stream, unit): (EventStream<CounterMsg<T>>, T)) -> CounterEditModel<T> {
         CounterEditModel {
-            upstream,
+            stream,
             unit,
-            key_flag: false,
+            key_pressed: false,
         }
     }
 
@@ -106,8 +106,8 @@ where
             .set_placeholder_text(Some(self.model.unit.as_static()));
         self.entry.widget().add_events(EventMask::SCROLL_MASK);
 
-        self.inc.add_events(EventMask::BUTTON_PRESS_MASK);
-        self.dec.add_events(EventMask::BUTTON_PRESS_MASK);
+        self.inc.add_events(EventMask::BUTTON_RELEASE_MASK);
+        self.dec.add_events(EventMask::BUTTON_RELEASE_MASK);
     }
 
     fn update(&mut self, event: CounterEditMsg) {
@@ -115,37 +115,34 @@ where
             CounterEditMsg::Submit => {
                 if let Some(text) = self.entry.widget().get_text() {
                     let msg = CounterMsg::Change(text.to_string(), self.model.unit);
-                    self.model.upstream.emit(msg);
+                    self.model.stream.emit(msg);
                 }
                 self.entry.widget().set_text("");
             }
-            CounterEditMsg::Increment | CounterEditMsg::Scroll(ScrollDirection::Up) => {
-                if self.model.key_flag {
-                    self.model.key_flag = false;
-                } else {
-                    self.model
-                        .upstream
-                        .emit(CounterMsg::Increment(self.model.unit));
-                }
+            CounterEditMsg::Increment | CounterEditMsg::Scroll(ScrollDirection::Up)
+                if !self.model.key_pressed =>
+            {
+                self.model
+                    .stream
+                    .emit(CounterMsg::Increment(self.model.unit));
             }
-            CounterEditMsg::Decrement | CounterEditMsg::Scroll(ScrollDirection::Down) => {
-                if self.model.key_flag {
-                    self.model.key_flag = false;
-                } else {
-                    self.model
-                        .upstream
-                        .emit(CounterMsg::Decrement(self.model.unit));
-                }
+            CounterEditMsg::Decrement | CounterEditMsg::Scroll(ScrollDirection::Down)
+                if !self.model.key_pressed =>
+            {
+                self.model
+                    .stream
+                    .emit(CounterMsg::Decrement(self.model.unit));
             }
             CounterEditMsg::Key(key, direction) => {
                 if let Some(value) = keymap(&key) {
                     self.model
-                        .upstream
+                        .stream
                         .emit(CounterMsg::Add(direction as i64 * value, self.model.unit));
-                    self.model.key_flag = true;
+                    // Stop mouse click release from activating
+                    self.model.key_pressed = true;
                 }
             }
-            CounterEditMsg::FlagClear => self.model.key_flag = false,
+            CounterEditMsg::FlagClear => self.model.key_pressed = false,
             _ => {}
         }
     }
@@ -162,9 +159,9 @@ where
 
             #[name="entry"]
             TextEntry {
+                input_purpose: gtk::InputPurpose::Number,
                 scroll_event(_, event) => (CounterEditMsg::Scroll(event.get_direction()), Inhibit(false)),
                 activate => CounterEditMsg::Submit,
-                input_purpose: gtk::InputPurpose::Number,
             },
             gtk::Box {
                 hexpand: true,
@@ -174,8 +171,8 @@ where
                 gtk::Button {
                     label: "-",
                     margin_end: 5,
-                    key_press_event(_, event) => (CounterEditMsg::Key(event.get_keyval(), -1), Inhibit(false)),
-                    leave_notify_event(_, _) => (CounterEditMsg::FlagClear, Inhibit(false)),
+                    button_press_event(_, _) => (CounterEditMsg::FlagClear, Inhibit(false)),
+                    key_release_event(_, event) => (CounterEditMsg::Key(event.get_keyval(), -1), Inhibit(true)),
                     clicked => CounterEditMsg::Decrement,
                 },
 
@@ -183,8 +180,8 @@ where
                 gtk::Button {
                     label: "+",
                     margin_start: 5,
-                    key_press_event(_, event) => (CounterEditMsg::Key(event.get_keyval(), 1), Inhibit(false)),
-                    leave_notify_event(_, _) => (CounterEditMsg::FlagClear, Inhibit(false)),
+                    button_press_event(_, _) => (CounterEditMsg::FlagClear, Inhibit(false)),
+                    key_release_event(_, event) => (CounterEditMsg::Key(event.get_keyval(), 1), Inhibit(false)),
                     clicked => CounterEditMsg::Increment,
                 },
             }
