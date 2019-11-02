@@ -134,6 +134,56 @@
       </row>
     </data>
   </object>
+  <object class="GtkListStore" id="Spell List">
+    <columns>
+      <!-- column-name IsPrepared -->
+      <column type="gboolean"/>
+      <!-- column-name SpellName -->
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0">True</col>
+        <col id="1" translatable="yes">Magic Missile</col>
+      </row>
+      <row>
+        <col id="0">True</col>
+        <col id="1" translatable="yes">Light</col>
+      </row>
+      <row>
+        <col id="0">False</col>
+        <col id="1" translatable="yes">Fireball</col>
+      </row>
+      <row>
+        <col id="0">False</col>
+        <col id="1" translatable="yes">Fly</col>
+      </row>
+      <row>
+        <col id="0">False</col>
+        <col id="1" translatable="yes">Misty Step</col>
+      </row>
+      <row>
+        <col id="0">False</col>
+        <col id="1" translatable="yes">Ghost Walk</col>
+      </row>
+      <row>
+        <col id="0">True</col>
+        <col id="1" translatable="yes">Firebolt</col>
+      </row>
+      <row>
+        <col id="0">False</col>
+        <col id="1" translatable="yes">Water Breathing</col>
+      </row>
+      <row>
+        <col id="0">False</col>
+        <col id="1" translatable="yes">Finger of Death</col>
+      </row>
+      <row>
+        <col id="0">True</col>
+        <col id="1" translatable="yes">Shatter</col>
+      </row>
+    </data>
+  </object>
   <object class="GtkWindow" id="Application Window">
     <property name="width_request">1280</property>
     <property name="height_request">720</property>
@@ -4833,17 +4883,1482 @@
                           <object class="GtkAlignment">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="left_padding">12</property>
                             <child>
-                              <placeholder/>
+                              <object class="GtkBox">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="homogeneous">True</property>
+                                <child>
+                                  <object class="GtkBox">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="orientation">vertical</property>
+                                    <property name="homogeneous">True</property>
+                                    <child>
+                                      <object class="GtkFrame">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="label_xalign">0</property>
+                                        <property name="shadow_type">none</property>
+                                        <child>
+                                          <object class="GtkAlignment">
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">False</property>
+                                            <child>
+                                              <object class="GtkBox">
+                                                <property name="visible">True</property>
+                                                <property name="can_focus">False</property>
+                                                <property name="orientation">vertical</property>
+                                                <child>
+                                                  <object class="GtkHeaderBar">
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">False</property>
+                                                    <property name="title" translatable="yes">CANTRIPS</property>
+                                                    <property name="spacing">10</property>
+                                                    <child>
+                                                      <object class="GtkLabel">
+                                                        <property name="visible">True</property>
+                                                        <property name="can_focus">False</property>
+                                                        <property name="margin_left">15</property>
+                                                        <property name="label" translatable="yes">0th</property>
+                                                        <attributes>
+                                                          <attribute name="weight" value="bold"/>
+                                                          <attribute name="scale" value="1.25"/>
+                                                        </attributes>
+                                                      </object>
+                                                    </child>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="fill">True</property>
+                                                    <property name="position">0</property>
+                                                  </packing>
+                                                </child>
+                                                <child>
+                                                  <object class="GtkFrame">
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">False</property>
+                                                    <property name="vexpand">True</property>
+                                                    <property name="label_xalign">0</property>
+                                                    <property name="shadow_type">none</property>
+                                                    <child>
+                                                      <object class="GtkAlignment">
+                                                        <property name="visible">True</property>
+                                                        <property name="can_focus">False</property>
+                                                        <child>
+                                                          <object class="GtkScrolledWindow">
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">True</property>
+                                                            <property name="shadow_type">in</property>
+                                                            <child>
+                                                            <object class="GtkViewport">
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">False</property>
+                                                            <child>
+                                                            <object class="GtkTreeView">
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">True</property>
+                                                            <property name="model">Spell List</property>
+                                                            <child internal-child="selection">
+                                                            <object class="GtkTreeSelection"/>
+                                                            </child>
+                                                            <child>
+                                                            <object class="GtkTreeViewColumn">
+                                                            <property name="title" translatable="yes">Prepared?</property>
+                                                            <property name="sort_indicator">True</property>
+                                                            <property name="sort_column_id">0</property>
+                                                            <child>
+                                                            <object class="GtkCellRendererToggle"/>
+                                                            </child>
+                                                            </object>
+                                                            </child>
+                                                            <child>
+                                                            <object class="GtkTreeViewColumn">
+                                                            <property name="title" translatable="yes">Spell Name</property>
+                                                            <property name="sort_indicator">True</property>
+                                                            <property name="sort_column_id">1</property>
+                                                            <child>
+                                                            <object class="GtkCellRendererText"/>
+                                                            <attributes>
+                                                            <attribute name="text">1</attribute>
+                                                            </attributes>
+                                                            </child>
+                                                            </object>
+                                                            </child>
+                                                            </object>
+                                                            </child>
+                                                            </object>
+                                                            </child>
+                                                          </object>
+                                                        </child>
+                                                      </object>
+                                                    </child>
+                                                    <child type="label">
+                                                      <object class="GtkLabel">
+                                                        <property name="can_focus">False</property>
+                                                        <property name="label" translatable="yes">__Spell List</property>
+                                                      </object>
+                                                    </child>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="fill">True</property>
+                                                    <property name="position">1</property>
+                                                  </packing>
+                                                </child>
+                                              </object>
+                                            </child>
+                                          </object>
+                                        </child>
+                                        <child type="label">
+                                          <object class="GtkLabel">
+                                            <property name="can_focus">False</property>
+                                            <property name="label" translatable="yes">__Spell Container</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">0</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkFrame">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="label_xalign">0</property>
+                                        <property name="shadow_type">none</property>
+                                        <child>
+                                          <object class="GtkAlignment">
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">False</property>
+                                            <child>
+                                              <object class="GtkBox">
+                                                <property name="visible">True</property>
+                                                <property name="can_focus">False</property>
+                                                <property name="orientation">vertical</property>
+                                                <child>
+                                                  <object class="GtkHeaderBar">
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">False</property>
+                                                    <property name="title" translatable="yes">/ 99</property>
+                                                    <property name="spacing">10</property>
+                                                    <child>
+                                                      <object class="GtkLabel">
+                                                        <property name="visible">True</property>
+                                                        <property name="can_focus">False</property>
+                                                        <property name="margin_left">15</property>
+                                                        <property name="margin_right">15</property>
+                                                        <property name="label" translatable="yes">1st</property>
+                                                        <attributes>
+                                                          <attribute name="weight" value="bold"/>
+                                                          <attribute name="scale" value="1.25"/>
+                                                        </attributes>
+                                                      </object>
+                                                    </child>
+                                                    <child>
+                                                      <object class="GtkEntry">
+                                                        <property name="visible">True</property>
+                                                        <property name="can_focus">True</property>
+                                                        <property name="placeholder_text" translatable="yes">Remaining Slots</property>
+                                                      </object>
+                                                      <packing>
+                                                        <property name="position">1</property>
+                                                      </packing>
+                                                    </child>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="fill">True</property>
+                                                    <property name="position">0</property>
+                                                  </packing>
+                                                </child>
+                                                <child>
+                                                  <object class="GtkFrame">
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">False</property>
+                                                    <property name="vexpand">True</property>
+                                                    <property name="label_xalign">0</property>
+                                                    <property name="shadow_type">none</property>
+                                                    <child>
+                                                      <object class="GtkAlignment">
+                                                        <property name="visible">True</property>
+                                                        <property name="can_focus">False</property>
+                                                        <child>
+                                                          <object class="GtkScrolledWindow">
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">True</property>
+                                                            <property name="shadow_type">in</property>
+                                                            <child>
+                                                            <object class="GtkViewport">
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">False</property>
+                                                            <child>
+                                                            <object class="GtkTreeView">
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">True</property>
+                                                            <property name="model">Spell List</property>
+                                                            <child internal-child="selection">
+                                                            <object class="GtkTreeSelection"/>
+                                                            </child>
+                                                            <child>
+                                                            <object class="GtkTreeViewColumn">
+                                                            <property name="title" translatable="yes">Prepared?</property>
+                                                            <property name="clickable">True</property>
+                                                            <property name="sort_indicator">True</property>
+                                                            <property name="sort_column_id">0</property>
+                                                            <child>
+                                                            <object class="GtkCellRendererToggle"/>
+                                                            </child>
+                                                            </object>
+                                                            </child>
+                                                            <child>
+                                                            <object class="GtkTreeViewColumn">
+                                                            <property name="title" translatable="yes">Spell Name</property>
+                                                            <property name="clickable">True</property>
+                                                            <property name="sort_indicator">True</property>
+                                                            <property name="sort_column_id">1</property>
+                                                            <child>
+                                                            <object class="GtkCellRendererText"/>
+                                                            <attributes>
+                                                            <attribute name="text">1</attribute>
+                                                            </attributes>
+                                                            </child>
+                                                            </object>
+                                                            </child>
+                                                            </object>
+                                                            </child>
+                                                            </object>
+                                                            </child>
+                                                          </object>
+                                                        </child>
+                                                      </object>
+                                                    </child>
+                                                    <child type="label">
+                                                      <object class="GtkLabel">
+                                                        <property name="can_focus">False</property>
+                                                        <property name="label" translatable="yes">__Spell List</property>
+                                                      </object>
+                                                    </child>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="fill">True</property>
+                                                    <property name="position">1</property>
+                                                  </packing>
+                                                </child>
+                                              </object>
+                                            </child>
+                                          </object>
+                                        </child>
+                                        <child type="label">
+                                          <object class="GtkLabel">
+                                            <property name="can_focus">False</property>
+                                            <property name="label" translatable="yes">__Spell Container</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">1</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkFrame">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="label_xalign">0</property>
+                                        <property name="shadow_type">none</property>
+                                        <child>
+                                          <object class="GtkAlignment">
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">False</property>
+                                            <child>
+                                              <object class="GtkBox">
+                                                <property name="visible">True</property>
+                                                <property name="can_focus">False</property>
+                                                <property name="orientation">vertical</property>
+                                                <child>
+                                                  <object class="GtkHeaderBar">
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">False</property>
+                                                    <property name="title" translatable="yes">/ 99</property>
+                                                    <property name="spacing">10</property>
+                                                    <child>
+                                                      <object class="GtkLabel">
+                                                        <property name="visible">True</property>
+                                                        <property name="can_focus">False</property>
+                                                        <property name="margin_left">15</property>
+                                                        <property name="margin_right">15</property>
+                                                        <property name="label" translatable="yes">2nd</property>
+                                                        <attributes>
+                                                          <attribute name="weight" value="bold"/>
+                                                          <attribute name="scale" value="1.25"/>
+                                                        </attributes>
+                                                      </object>
+                                                    </child>
+                                                    <child>
+                                                      <object class="GtkEntry">
+                                                        <property name="visible">True</property>
+                                                        <property name="can_focus">True</property>
+                                                        <property name="placeholder_text" translatable="yes">Remaining Slots</property>
+                                                      </object>
+                                                      <packing>
+                                                        <property name="position">1</property>
+                                                      </packing>
+                                                    </child>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="fill">True</property>
+                                                    <property name="position">0</property>
+                                                  </packing>
+                                                </child>
+                                                <child>
+                                                  <object class="GtkFrame">
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">False</property>
+                                                    <property name="vexpand">True</property>
+                                                    <property name="label_xalign">0</property>
+                                                    <property name="shadow_type">none</property>
+                                                    <child>
+                                                      <object class="GtkAlignment">
+                                                        <property name="visible">True</property>
+                                                        <property name="can_focus">False</property>
+                                                        <child>
+                                                          <object class="GtkScrolledWindow">
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">True</property>
+                                                            <property name="shadow_type">in</property>
+                                                            <child>
+                                                            <object class="GtkViewport">
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">False</property>
+                                                            <child>
+                                                            <object class="GtkTreeView">
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">True</property>
+                                                            <child internal-child="selection">
+                                                            <object class="GtkTreeSelection"/>
+                                                            </child>
+                                                            <child>
+                                                            <object class="GtkTreeViewColumn">
+                                                            <property name="title" translatable="yes">Prepared?</property>
+                                                            <property name="clickable">True</property>
+                                                            <property name="sort_indicator">True</property>
+                                                            <property name="sort_column_id">0</property>
+                                                            <child>
+                                                            <object class="GtkCellRendererText"/>
+                                                            <attributes>
+                                                            <attribute name="text">0</attribute>
+                                                            </attributes>
+                                                            </child>
+                                                            </object>
+                                                            </child>
+                                                            <child>
+                                                            <object class="GtkTreeViewColumn">
+                                                            <property name="title" translatable="yes">Spell Name</property>
+                                                            <property name="clickable">True</property>
+                                                            <property name="sort_indicator">True</property>
+                                                            <property name="sort_column_id">1</property>
+                                                            <child>
+                                                            <object class="GtkCellRendererText"/>
+                                                            <attributes>
+                                                            <attribute name="text">1</attribute>
+                                                            </attributes>
+                                                            </child>
+                                                            </object>
+                                                            </child>
+                                                            </object>
+                                                            </child>
+                                                            </object>
+                                                            </child>
+                                                          </object>
+                                                        </child>
+                                                      </object>
+                                                    </child>
+                                                    <child type="label">
+                                                      <object class="GtkLabel">
+                                                        <property name="can_focus">False</property>
+                                                        <property name="label" translatable="yes">__Spell List</property>
+                                                      </object>
+                                                    </child>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="fill">True</property>
+                                                    <property name="position">1</property>
+                                                  </packing>
+                                                </child>
+                                              </object>
+                                            </child>
+                                          </object>
+                                        </child>
+                                        <child type="label">
+                                          <object class="GtkLabel">
+                                            <property name="can_focus">False</property>
+                                            <property name="label" translatable="yes">__Spell Container</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">2</property>
+                                      </packing>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkBox">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="orientation">vertical</property>
+                                    <child>
+                                      <object class="GtkFrame">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="vexpand">True</property>
+                                        <property name="label_xalign">0</property>
+                                        <property name="shadow_type">none</property>
+                                        <child>
+                                          <object class="GtkAlignment">
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">False</property>
+                                            <child>
+                                              <object class="GtkBox">
+                                                <property name="visible">True</property>
+                                                <property name="can_focus">False</property>
+                                                <property name="orientation">vertical</property>
+                                                <child>
+                                                  <object class="GtkHeaderBar">
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">False</property>
+                                                    <property name="title" translatable="yes">/ 99</property>
+                                                    <property name="spacing">10</property>
+                                                    <child>
+                                                      <object class="GtkLabel">
+                                                        <property name="visible">True</property>
+                                                        <property name="can_focus">False</property>
+                                                        <property name="margin_left">15</property>
+                                                        <property name="margin_right">15</property>
+                                                        <property name="label" translatable="yes">3rd</property>
+                                                        <attributes>
+                                                          <attribute name="weight" value="bold"/>
+                                                          <attribute name="scale" value="1.25"/>
+                                                        </attributes>
+                                                      </object>
+                                                    </child>
+                                                    <child>
+                                                      <object class="GtkEntry">
+                                                        <property name="visible">True</property>
+                                                        <property name="can_focus">True</property>
+                                                        <property name="placeholder_text" translatable="yes">Remaining Slots</property>
+                                                      </object>
+                                                      <packing>
+                                                        <property name="position">1</property>
+                                                      </packing>
+                                                    </child>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="fill">True</property>
+                                                    <property name="position">0</property>
+                                                  </packing>
+                                                </child>
+                                                <child>
+                                                  <object class="GtkFrame">
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">False</property>
+                                                    <property name="vexpand">True</property>
+                                                    <property name="label_xalign">0</property>
+                                                    <property name="shadow_type">none</property>
+                                                    <child>
+                                                      <object class="GtkAlignment">
+                                                        <property name="visible">True</property>
+                                                        <property name="can_focus">False</property>
+                                                        <child>
+                                                          <object class="GtkScrolledWindow">
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">True</property>
+                                                            <property name="shadow_type">in</property>
+                                                            <child>
+                                                            <object class="GtkViewport">
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">False</property>
+                                                            <child>
+                                                            <object class="GtkTreeView">
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">True</property>
+                                                            <child internal-child="selection">
+                                                            <object class="GtkTreeSelection"/>
+                                                            </child>
+                                                            <child>
+                                                            <object class="GtkTreeViewColumn">
+                                                            <property name="title" translatable="yes">Prepared?</property>
+                                                            <property name="clickable">True</property>
+                                                            <property name="sort_indicator">True</property>
+                                                            <property name="sort_column_id">0</property>
+                                                            <child>
+                                                            <object class="GtkCellRendererText"/>
+                                                            <attributes>
+                                                            <attribute name="text">0</attribute>
+                                                            </attributes>
+                                                            </child>
+                                                            </object>
+                                                            </child>
+                                                            <child>
+                                                            <object class="GtkTreeViewColumn">
+                                                            <property name="title" translatable="yes">Spell Name</property>
+                                                            <property name="clickable">True</property>
+                                                            <property name="sort_indicator">True</property>
+                                                            <property name="sort_column_id">1</property>
+                                                            <child>
+                                                            <object class="GtkCellRendererText"/>
+                                                            <attributes>
+                                                            <attribute name="text">1</attribute>
+                                                            </attributes>
+                                                            </child>
+                                                            </object>
+                                                            </child>
+                                                            </object>
+                                                            </child>
+                                                            </object>
+                                                            </child>
+                                                          </object>
+                                                        </child>
+                                                      </object>
+                                                    </child>
+                                                    <child type="label">
+                                                      <object class="GtkLabel">
+                                                        <property name="can_focus">False</property>
+                                                        <property name="label" translatable="yes">__Spell List</property>
+                                                      </object>
+                                                    </child>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="fill">True</property>
+                                                    <property name="position">1</property>
+                                                  </packing>
+                                                </child>
+                                              </object>
+                                            </child>
+                                          </object>
+                                        </child>
+                                        <child type="label">
+                                          <object class="GtkLabel">
+                                            <property name="can_focus">False</property>
+                                            <property name="label" translatable="yes">__Spell Container</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">0</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkFrame">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="vexpand">True</property>
+                                        <property name="label_xalign">0</property>
+                                        <property name="shadow_type">none</property>
+                                        <child>
+                                          <object class="GtkAlignment">
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">False</property>
+                                            <child>
+                                              <object class="GtkBox">
+                                                <property name="visible">True</property>
+                                                <property name="can_focus">False</property>
+                                                <property name="orientation">vertical</property>
+                                                <child>
+                                                  <object class="GtkHeaderBar">
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">False</property>
+                                                    <property name="title" translatable="yes">/ 99</property>
+                                                    <property name="spacing">10</property>
+                                                    <child>
+                                                      <object class="GtkLabel">
+                                                        <property name="visible">True</property>
+                                                        <property name="can_focus">False</property>
+                                                        <property name="margin_left">15</property>
+                                                        <property name="margin_right">15</property>
+                                                        <property name="label" translatable="yes">4th</property>
+                                                        <attributes>
+                                                          <attribute name="weight" value="bold"/>
+                                                          <attribute name="scale" value="1.25"/>
+                                                        </attributes>
+                                                      </object>
+                                                    </child>
+                                                    <child>
+                                                      <object class="GtkEntry">
+                                                        <property name="visible">True</property>
+                                                        <property name="can_focus">True</property>
+                                                        <property name="placeholder_text" translatable="yes">Remaining Slots</property>
+                                                      </object>
+                                                      <packing>
+                                                        <property name="position">1</property>
+                                                      </packing>
+                                                    </child>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="fill">True</property>
+                                                    <property name="position">0</property>
+                                                  </packing>
+                                                </child>
+                                                <child>
+                                                  <object class="GtkFrame">
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">False</property>
+                                                    <property name="vexpand">True</property>
+                                                    <property name="label_xalign">0</property>
+                                                    <property name="shadow_type">none</property>
+                                                    <child>
+                                                      <object class="GtkAlignment">
+                                                        <property name="visible">True</property>
+                                                        <property name="can_focus">False</property>
+                                                        <child>
+                                                          <object class="GtkScrolledWindow">
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">True</property>
+                                                            <property name="shadow_type">in</property>
+                                                            <child>
+                                                            <object class="GtkViewport">
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">False</property>
+                                                            <child>
+                                                            <object class="GtkTreeView">
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">True</property>
+                                                            <child internal-child="selection">
+                                                            <object class="GtkTreeSelection"/>
+                                                            </child>
+                                                            <child>
+                                                            <object class="GtkTreeViewColumn">
+                                                            <property name="title" translatable="yes">Prepared?</property>
+                                                            <property name="clickable">True</property>
+                                                            <property name="sort_indicator">True</property>
+                                                            <property name="sort_column_id">0</property>
+                                                            <child>
+                                                            <object class="GtkCellRendererText"/>
+                                                            <attributes>
+                                                            <attribute name="text">0</attribute>
+                                                            </attributes>
+                                                            </child>
+                                                            </object>
+                                                            </child>
+                                                            <child>
+                                                            <object class="GtkTreeViewColumn">
+                                                            <property name="title" translatable="yes">Spell Name</property>
+                                                            <property name="clickable">True</property>
+                                                            <property name="sort_indicator">True</property>
+                                                            <property name="sort_column_id">1</property>
+                                                            <child>
+                                                            <object class="GtkCellRendererText"/>
+                                                            <attributes>
+                                                            <attribute name="text">1</attribute>
+                                                            </attributes>
+                                                            </child>
+                                                            </object>
+                                                            </child>
+                                                            </object>
+                                                            </child>
+                                                            </object>
+                                                            </child>
+                                                          </object>
+                                                        </child>
+                                                      </object>
+                                                    </child>
+                                                    <child type="label">
+                                                      <object class="GtkLabel">
+                                                        <property name="can_focus">False</property>
+                                                        <property name="label" translatable="yes">__Spell List</property>
+                                                      </object>
+                                                    </child>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="fill">True</property>
+                                                    <property name="position">1</property>
+                                                  </packing>
+                                                </child>
+                                              </object>
+                                            </child>
+                                          </object>
+                                        </child>
+                                        <child type="label">
+                                          <object class="GtkLabel">
+                                            <property name="can_focus">False</property>
+                                            <property name="label" translatable="yes">__Spell Container</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">1</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkFrame">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="vexpand">True</property>
+                                        <property name="label_xalign">0</property>
+                                        <property name="shadow_type">none</property>
+                                        <child>
+                                          <object class="GtkAlignment">
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">False</property>
+                                            <child>
+                                              <object class="GtkBox">
+                                                <property name="visible">True</property>
+                                                <property name="can_focus">False</property>
+                                                <property name="orientation">vertical</property>
+                                                <child>
+                                                  <object class="GtkHeaderBar">
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">False</property>
+                                                    <property name="title" translatable="yes">/ 99</property>
+                                                    <property name="spacing">10</property>
+                                                    <child>
+                                                      <object class="GtkLabel">
+                                                        <property name="visible">True</property>
+                                                        <property name="can_focus">False</property>
+                                                        <property name="margin_left">15</property>
+                                                        <property name="margin_right">15</property>
+                                                        <property name="label" translatable="yes">5th</property>
+                                                        <attributes>
+                                                          <attribute name="weight" value="bold"/>
+                                                          <attribute name="scale" value="1.25"/>
+                                                        </attributes>
+                                                      </object>
+                                                    </child>
+                                                    <child>
+                                                      <object class="GtkEntry">
+                                                        <property name="visible">True</property>
+                                                        <property name="can_focus">True</property>
+                                                        <property name="placeholder_text" translatable="yes">Remaining Slots</property>
+                                                      </object>
+                                                      <packing>
+                                                        <property name="position">1</property>
+                                                      </packing>
+                                                    </child>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="fill">True</property>
+                                                    <property name="position">0</property>
+                                                  </packing>
+                                                </child>
+                                                <child>
+                                                  <object class="GtkFrame">
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">False</property>
+                                                    <property name="vexpand">True</property>
+                                                    <property name="label_xalign">0</property>
+                                                    <property name="shadow_type">none</property>
+                                                    <child>
+                                                      <object class="GtkAlignment">
+                                                        <property name="visible">True</property>
+                                                        <property name="can_focus">False</property>
+                                                        <child>
+                                                          <object class="GtkScrolledWindow">
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">True</property>
+                                                            <property name="shadow_type">in</property>
+                                                            <child>
+                                                            <object class="GtkViewport">
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">False</property>
+                                                            <child>
+                                                            <object class="GtkTreeView">
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">True</property>
+                                                            <child internal-child="selection">
+                                                            <object class="GtkTreeSelection"/>
+                                                            </child>
+                                                            <child>
+                                                            <object class="GtkTreeViewColumn">
+                                                            <property name="title" translatable="yes">Prepared?</property>
+                                                            <property name="clickable">True</property>
+                                                            <property name="sort_indicator">True</property>
+                                                            <property name="sort_column_id">0</property>
+                                                            <child>
+                                                            <object class="GtkCellRendererText"/>
+                                                            <attributes>
+                                                            <attribute name="text">0</attribute>
+                                                            </attributes>
+                                                            </child>
+                                                            </object>
+                                                            </child>
+                                                            <child>
+                                                            <object class="GtkTreeViewColumn">
+                                                            <property name="title" translatable="yes">Spell Name</property>
+                                                            <property name="clickable">True</property>
+                                                            <property name="sort_indicator">True</property>
+                                                            <property name="sort_column_id">1</property>
+                                                            <child>
+                                                            <object class="GtkCellRendererText"/>
+                                                            <attributes>
+                                                            <attribute name="text">1</attribute>
+                                                            </attributes>
+                                                            </child>
+                                                            </object>
+                                                            </child>
+                                                            </object>
+                                                            </child>
+                                                            </object>
+                                                            </child>
+                                                          </object>
+                                                        </child>
+                                                      </object>
+                                                    </child>
+                                                    <child type="label">
+                                                      <object class="GtkLabel">
+                                                        <property name="can_focus">False</property>
+                                                        <property name="label" translatable="yes">__Spell List</property>
+                                                      </object>
+                                                    </child>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="fill">True</property>
+                                                    <property name="position">1</property>
+                                                  </packing>
+                                                </child>
+                                              </object>
+                                            </child>
+                                          </object>
+                                        </child>
+                                        <child type="label">
+                                          <object class="GtkLabel">
+                                            <property name="can_focus">False</property>
+                                            <property name="label" translatable="yes">__Spell Container</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">2</property>
+                                      </packing>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkBox">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="orientation">vertical</property>
+                                    <child>
+                                      <object class="GtkFrame">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="vexpand">True</property>
+                                        <property name="label_xalign">0</property>
+                                        <property name="shadow_type">none</property>
+                                        <child>
+                                          <object class="GtkAlignment">
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">False</property>
+                                            <child>
+                                              <object class="GtkBox">
+                                                <property name="visible">True</property>
+                                                <property name="can_focus">False</property>
+                                                <property name="orientation">vertical</property>
+                                                <child>
+                                                  <object class="GtkHeaderBar">
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">False</property>
+                                                    <property name="title" translatable="yes">/ 99</property>
+                                                    <property name="spacing">10</property>
+                                                    <child>
+                                                      <object class="GtkLabel">
+                                                        <property name="visible">True</property>
+                                                        <property name="can_focus">False</property>
+                                                        <property name="margin_left">15</property>
+                                                        <property name="margin_right">15</property>
+                                                        <property name="label" translatable="yes">6th</property>
+                                                        <attributes>
+                                                          <attribute name="weight" value="bold"/>
+                                                          <attribute name="scale" value="1.25"/>
+                                                        </attributes>
+                                                      </object>
+                                                    </child>
+                                                    <child>
+                                                      <object class="GtkEntry">
+                                                        <property name="visible">True</property>
+                                                        <property name="can_focus">True</property>
+                                                        <property name="placeholder_text" translatable="yes">Remaining Slots</property>
+                                                      </object>
+                                                      <packing>
+                                                        <property name="position">1</property>
+                                                      </packing>
+                                                    </child>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="fill">True</property>
+                                                    <property name="position">0</property>
+                                                  </packing>
+                                                </child>
+                                                <child>
+                                                  <object class="GtkFrame">
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">False</property>
+                                                    <property name="vexpand">True</property>
+                                                    <property name="label_xalign">0</property>
+                                                    <property name="shadow_type">none</property>
+                                                    <child>
+                                                      <object class="GtkAlignment">
+                                                        <property name="visible">True</property>
+                                                        <property name="can_focus">False</property>
+                                                        <child>
+                                                          <object class="GtkScrolledWindow">
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">True</property>
+                                                            <property name="shadow_type">in</property>
+                                                            <child>
+                                                            <object class="GtkViewport">
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">False</property>
+                                                            <child>
+                                                            <object class="GtkTreeView">
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">True</property>
+                                                            <property name="model">Spell List</property>
+                                                            <child internal-child="selection">
+                                                            <object class="GtkTreeSelection"/>
+                                                            </child>
+                                                            <child>
+                                                            <object class="GtkTreeViewColumn">
+                                                            <property name="title" translatable="yes">Prepared?</property>
+                                                            <property name="clickable">True</property>
+                                                            <property name="sort_indicator">True</property>
+                                                            <property name="sort_column_id">0</property>
+                                                            <child>
+                                                            <object class="GtkCellRendererToggle"/>
+                                                            </child>
+                                                            </object>
+                                                            </child>
+                                                            <child>
+                                                            <object class="GtkTreeViewColumn">
+                                                            <property name="title" translatable="yes">Spell Name</property>
+                                                            <property name="clickable">True</property>
+                                                            <property name="sort_indicator">True</property>
+                                                            <property name="sort_column_id">1</property>
+                                                            <child>
+                                                            <object class="GtkCellRendererText"/>
+                                                            <attributes>
+                                                            <attribute name="text">1</attribute>
+                                                            </attributes>
+                                                            </child>
+                                                            </object>
+                                                            </child>
+                                                            </object>
+                                                            </child>
+                                                            </object>
+                                                            </child>
+                                                          </object>
+                                                        </child>
+                                                      </object>
+                                                    </child>
+                                                    <child type="label">
+                                                      <object class="GtkLabel">
+                                                        <property name="can_focus">False</property>
+                                                        <property name="label" translatable="yes">__Spell List</property>
+                                                      </object>
+                                                    </child>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="fill">True</property>
+                                                    <property name="position">1</property>
+                                                  </packing>
+                                                </child>
+                                              </object>
+                                            </child>
+                                          </object>
+                                        </child>
+                                        <child type="label">
+                                          <object class="GtkLabel">
+                                            <property name="can_focus">False</property>
+                                            <property name="label" translatable="yes">__Spell Container</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">0</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkFrame">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="vexpand">True</property>
+                                        <property name="label_xalign">0</property>
+                                        <property name="shadow_type">none</property>
+                                        <child>
+                                          <object class="GtkAlignment">
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">False</property>
+                                            <child>
+                                              <object class="GtkBox">
+                                                <property name="visible">True</property>
+                                                <property name="can_focus">False</property>
+                                                <property name="orientation">vertical</property>
+                                                <child>
+                                                  <object class="GtkHeaderBar">
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">False</property>
+                                                    <property name="title" translatable="yes">/ 99</property>
+                                                    <property name="spacing">10</property>
+                                                    <child>
+                                                      <object class="GtkLabel">
+                                                        <property name="visible">True</property>
+                                                        <property name="can_focus">False</property>
+                                                        <property name="margin_left">15</property>
+                                                        <property name="margin_right">15</property>
+                                                        <property name="label" translatable="yes">7th</property>
+                                                        <attributes>
+                                                          <attribute name="weight" value="bold"/>
+                                                          <attribute name="scale" value="1.25"/>
+                                                        </attributes>
+                                                      </object>
+                                                    </child>
+                                                    <child>
+                                                      <object class="GtkEntry">
+                                                        <property name="visible">True</property>
+                                                        <property name="can_focus">True</property>
+                                                        <property name="placeholder_text" translatable="yes">Remaining Slots</property>
+                                                      </object>
+                                                      <packing>
+                                                        <property name="position">1</property>
+                                                      </packing>
+                                                    </child>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="fill">True</property>
+                                                    <property name="position">0</property>
+                                                  </packing>
+                                                </child>
+                                                <child>
+                                                  <object class="GtkFrame">
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">False</property>
+                                                    <property name="vexpand">True</property>
+                                                    <property name="label_xalign">0</property>
+                                                    <property name="shadow_type">none</property>
+                                                    <child>
+                                                      <object class="GtkAlignment">
+                                                        <property name="visible">True</property>
+                                                        <property name="can_focus">False</property>
+                                                        <child>
+                                                          <object class="GtkScrolledWindow">
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">True</property>
+                                                            <property name="shadow_type">in</property>
+                                                            <child>
+                                                            <object class="GtkViewport">
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">False</property>
+                                                            <child>
+                                                            <object class="GtkTreeView">
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">True</property>
+                                                            <property name="model">Spell List</property>
+                                                            <child internal-child="selection">
+                                                            <object class="GtkTreeSelection"/>
+                                                            </child>
+                                                            <child>
+                                                            <object class="GtkTreeViewColumn">
+                                                            <property name="title" translatable="yes">Prepared?</property>
+                                                            <property name="clickable">True</property>
+                                                            <property name="sort_indicator">True</property>
+                                                            <property name="sort_column_id">0</property>
+                                                            <child>
+                                                            <object class="GtkCellRendererToggle"/>
+                                                            </child>
+                                                            </object>
+                                                            </child>
+                                                            <child>
+                                                            <object class="GtkTreeViewColumn">
+                                                            <property name="title" translatable="yes">Spell Name</property>
+                                                            <property name="clickable">True</property>
+                                                            <property name="sort_indicator">True</property>
+                                                            <property name="sort_column_id">1</property>
+                                                            <child>
+                                                            <object class="GtkCellRendererText"/>
+                                                            <attributes>
+                                                            <attribute name="text">1</attribute>
+                                                            </attributes>
+                                                            </child>
+                                                            </object>
+                                                            </child>
+                                                            </object>
+                                                            </child>
+                                                            </object>
+                                                            </child>
+                                                          </object>
+                                                        </child>
+                                                      </object>
+                                                    </child>
+                                                    <child type="label">
+                                                      <object class="GtkLabel">
+                                                        <property name="can_focus">False</property>
+                                                        <property name="label" translatable="yes">__Spell List</property>
+                                                      </object>
+                                                    </child>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="fill">True</property>
+                                                    <property name="position">1</property>
+                                                  </packing>
+                                                </child>
+                                              </object>
+                                            </child>
+                                          </object>
+                                        </child>
+                                        <child type="label">
+                                          <object class="GtkLabel">
+                                            <property name="can_focus">False</property>
+                                            <property name="label" translatable="yes">__Spell Container</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">1</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkFrame">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="vexpand">True</property>
+                                        <property name="label_xalign">0</property>
+                                        <property name="shadow_type">none</property>
+                                        <child>
+                                          <object class="GtkAlignment">
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">False</property>
+                                            <child>
+                                              <object class="GtkBox">
+                                                <property name="visible">True</property>
+                                                <property name="can_focus">False</property>
+                                                <property name="orientation">vertical</property>
+                                                <child>
+                                                  <object class="GtkHeaderBar">
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">False</property>
+                                                    <property name="title" translatable="yes">/ 99</property>
+                                                    <property name="spacing">10</property>
+                                                    <child>
+                                                      <object class="GtkLabel">
+                                                        <property name="visible">True</property>
+                                                        <property name="can_focus">False</property>
+                                                        <property name="margin_left">15</property>
+                                                        <property name="margin_right">15</property>
+                                                        <property name="label" translatable="yes">8th</property>
+                                                        <attributes>
+                                                          <attribute name="weight" value="bold"/>
+                                                          <attribute name="scale" value="1.25"/>
+                                                        </attributes>
+                                                      </object>
+                                                    </child>
+                                                    <child>
+                                                      <object class="GtkEntry">
+                                                        <property name="visible">True</property>
+                                                        <property name="can_focus">True</property>
+                                                        <property name="placeholder_text" translatable="yes">Remaining Slots</property>
+                                                      </object>
+                                                      <packing>
+                                                        <property name="position">1</property>
+                                                      </packing>
+                                                    </child>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="fill">True</property>
+                                                    <property name="position">0</property>
+                                                  </packing>
+                                                </child>
+                                                <child>
+                                                  <object class="GtkFrame">
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">False</property>
+                                                    <property name="vexpand">True</property>
+                                                    <property name="label_xalign">0</property>
+                                                    <property name="shadow_type">none</property>
+                                                    <child>
+                                                      <object class="GtkAlignment">
+                                                        <property name="visible">True</property>
+                                                        <property name="can_focus">False</property>
+                                                        <child>
+                                                          <object class="GtkScrolledWindow">
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">True</property>
+                                                            <property name="shadow_type">in</property>
+                                                            <child>
+                                                            <object class="GtkViewport">
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">False</property>
+                                                            <child>
+                                                            <object class="GtkTreeView">
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">True</property>
+                                                            <child internal-child="selection">
+                                                            <object class="GtkTreeSelection"/>
+                                                            </child>
+                                                            <child>
+                                                            <object class="GtkTreeViewColumn">
+                                                            <property name="title" translatable="yes">Prepared?</property>
+                                                            <property name="clickable">True</property>
+                                                            <property name="sort_indicator">True</property>
+                                                            <property name="sort_column_id">0</property>
+                                                            <child>
+                                                            <object class="GtkCellRendererText"/>
+                                                            <attributes>
+                                                            <attribute name="text">0</attribute>
+                                                            </attributes>
+                                                            </child>
+                                                            </object>
+                                                            </child>
+                                                            <child>
+                                                            <object class="GtkTreeViewColumn">
+                                                            <property name="title" translatable="yes">Spell Name</property>
+                                                            <property name="clickable">True</property>
+                                                            <property name="sort_indicator">True</property>
+                                                            <property name="sort_column_id">1</property>
+                                                            <child>
+                                                            <object class="GtkCellRendererText"/>
+                                                            <attributes>
+                                                            <attribute name="text">1</attribute>
+                                                            </attributes>
+                                                            </child>
+                                                            </object>
+                                                            </child>
+                                                            </object>
+                                                            </child>
+                                                            </object>
+                                                            </child>
+                                                          </object>
+                                                        </child>
+                                                      </object>
+                                                    </child>
+                                                    <child type="label">
+                                                      <object class="GtkLabel">
+                                                        <property name="can_focus">False</property>
+                                                        <property name="label" translatable="yes">__Spell List</property>
+                                                      </object>
+                                                    </child>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="fill">True</property>
+                                                    <property name="position">1</property>
+                                                  </packing>
+                                                </child>
+                                              </object>
+                                            </child>
+                                          </object>
+                                        </child>
+                                        <child type="label">
+                                          <object class="GtkLabel">
+                                            <property name="can_focus">False</property>
+                                            <property name="label" translatable="yes">__Spell Container</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">2</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkFrame">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="vexpand">True</property>
+                                        <property name="label_xalign">0</property>
+                                        <property name="shadow_type">none</property>
+                                        <child>
+                                          <object class="GtkAlignment">
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">False</property>
+                                            <child>
+                                              <object class="GtkBox">
+                                                <property name="visible">True</property>
+                                                <property name="can_focus">False</property>
+                                                <property name="orientation">vertical</property>
+                                                <child>
+                                                  <object class="GtkHeaderBar">
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">False</property>
+                                                    <property name="title" translatable="yes">/ 99</property>
+                                                    <property name="spacing">10</property>
+                                                    <child>
+                                                      <object class="GtkLabel">
+                                                        <property name="visible">True</property>
+                                                        <property name="can_focus">False</property>
+                                                        <property name="margin_left">15</property>
+                                                        <property name="margin_right">15</property>
+                                                        <property name="label" translatable="yes">9th</property>
+                                                        <attributes>
+                                                          <attribute name="weight" value="bold"/>
+                                                          <attribute name="scale" value="1.25"/>
+                                                        </attributes>
+                                                      </object>
+                                                    </child>
+                                                    <child>
+                                                      <object class="GtkEntry">
+                                                        <property name="visible">True</property>
+                                                        <property name="can_focus">True</property>
+                                                        <property name="placeholder_text" translatable="yes">Remaining Slots</property>
+                                                      </object>
+                                                      <packing>
+                                                        <property name="position">1</property>
+                                                      </packing>
+                                                    </child>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="fill">True</property>
+                                                    <property name="position">0</property>
+                                                  </packing>
+                                                </child>
+                                                <child>
+                                                  <object class="GtkFrame">
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">False</property>
+                                                    <property name="vexpand">True</property>
+                                                    <property name="label_xalign">0</property>
+                                                    <property name="shadow_type">none</property>
+                                                    <child>
+                                                      <object class="GtkAlignment">
+                                                        <property name="visible">True</property>
+                                                        <property name="can_focus">False</property>
+                                                        <child>
+                                                          <object class="GtkScrolledWindow">
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">True</property>
+                                                            <property name="shadow_type">in</property>
+                                                            <child>
+                                                            <object class="GtkViewport">
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">False</property>
+                                                            <child>
+                                                            <object class="GtkTreeView">
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">True</property>
+                                                            <child internal-child="selection">
+                                                            <object class="GtkTreeSelection"/>
+                                                            </child>
+                                                            <child>
+                                                            <object class="GtkTreeViewColumn">
+                                                            <property name="title" translatable="yes">Prepared?</property>
+                                                            <property name="clickable">True</property>
+                                                            <property name="sort_indicator">True</property>
+                                                            <property name="sort_column_id">0</property>
+                                                            <child>
+                                                            <object class="GtkCellRendererText"/>
+                                                            <attributes>
+                                                            <attribute name="text">0</attribute>
+                                                            </attributes>
+                                                            </child>
+                                                            </object>
+                                                            </child>
+                                                            <child>
+                                                            <object class="GtkTreeViewColumn">
+                                                            <property name="title" translatable="yes">Spell Name</property>
+                                                            <property name="clickable">True</property>
+                                                            <property name="sort_indicator">True</property>
+                                                            <property name="sort_column_id">1</property>
+                                                            <child>
+                                                            <object class="GtkCellRendererText"/>
+                                                            <attributes>
+                                                            <attribute name="text">1</attribute>
+                                                            </attributes>
+                                                            </child>
+                                                            </object>
+                                                            </child>
+                                                            </object>
+                                                            </child>
+                                                            </object>
+                                                            </child>
+                                                          </object>
+                                                        </child>
+                                                      </object>
+                                                    </child>
+                                                    <child type="label">
+                                                      <object class="GtkLabel">
+                                                        <property name="can_focus">False</property>
+                                                        <property name="label" translatable="yes">__Spell List</property>
+                                                      </object>
+                                                    </child>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="fill">True</property>
+                                                    <property name="position">1</property>
+                                                  </packing>
+                                                </child>
+                                              </object>
+                                            </child>
+                                          </object>
+                                        </child>
+                                        <child type="label">
+                                          <object class="GtkLabel">
+                                            <property name="can_focus">False</property>
+                                            <property name="label" translatable="yes">__Spell Container</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">3</property>
+                                      </packing>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">2</property>
+                                  </packing>
+                                </child>
+                              </object>
                             </child>
                           </object>
                         </child>
                         <child type="label">
                           <object class="GtkLabel">
-                            <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="label" translatable="yes">__glade_unnamed_246</property>
+                            <property name="label" translatable="yes">__Spell List Frame</property>
                           </object>
                         </child>
                       </object>
