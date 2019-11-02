@@ -138,21 +138,7 @@ where
                 }
             }
             CounterEditMsg::Key(key, direction) => {
-                let value = match key {
-                    key::Return => 1,
-                    key::_1 => 1,
-                    key::_2 => 2,
-                    key::_3 => 3,
-                    key::_4 => 4,
-                    key::_5 => 5,
-                    key::_6 => 6,
-                    key::_7 => 7,
-                    key::_8 => 8,
-                    key::_9 => 9,
-                    key::_0 => 10,
-                    _ => 0,
-                };
-                if value != 0 {
+                if let Some(value) = keymap(&key) {
                     self.model
                         .upstream
                         .emit(CounterMsg::Add(direction as i64 * value, self.model.unit));
@@ -203,5 +189,21 @@ where
                 },
             }
         }
+    }
+}
+
+fn keymap(key: &key::Key) -> Option<i64> {
+    match *key {
+        key::_1 | key::KP_1 | key::Return => Some(1),
+        key::_2 | key::KP_2 => Some(2),
+        key::_3 | key::KP_3 => Some(3),
+        key::_4 | key::KP_4 => Some(4),
+        key::_5 | key::KP_5 => Some(5),
+        key::_6 | key::KP_6 => Some(6),
+        key::_7 | key::KP_7 => Some(7),
+        key::_8 | key::KP_8 => Some(8),
+        key::_9 | key::KP_9 => Some(9),
+        key::_0 | key::KP_0 => Some(10),
+        _ => None,
     }
 }
