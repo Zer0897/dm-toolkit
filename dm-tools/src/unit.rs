@@ -170,25 +170,13 @@ where
         Ok(())
     }
 
-    // TODO Refactor
     pub fn set_from_text(&mut self, value: &str, unit: &T) -> Result<(), CountError> {
-        if value.starts_with('-') || value.starts_with('+') {
-            if let Ok(count) = value[1..].parse::<i64>() {
-                match value.chars().nth(0).unwrap() {
-                    '-' => self.sub_units(count, unit)?,
-                    '+' => self.add_units(count, unit)?,
-                    _ => unreachable!(),
-                };
-            } else {
-                return Err(CountError::InvalidValue);
+        match value.parse::<i64>() {
+            Ok(count) if value.starts_with('-') || value.starts_with('+') => {
+                self.add_units(count, unit)
             }
-        } else {
-            if let Ok(count) = value.parse::<i64>() {
-                self.set_units(count, unit)?;
-            } else {
-                return Err(CountError::InvalidValue);
-            }
+            Ok(count) => self.set_units(count, unit),
+            Err(_) => Err(CountError::InvalidValue),
         }
-        Ok(())
     }
 }
