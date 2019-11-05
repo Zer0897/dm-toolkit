@@ -1,7 +1,7 @@
 mod encounter_view;
 mod time_view;
 
-use gtk::{Inhibit, NotebookExt, WidgetExt};
+use gtk::{GtkWindowExt, Inhibit, NotebookExt, WidgetExt};
 use relm::{connect, connect_stream, Widget};
 use relm_derive::{widget, Msg};
 
@@ -31,6 +31,9 @@ impl Widget for Win {
 
     view! {
         gtk::Window {
+            property_default_width: 1280,
+            property_default_height: 720,
+
             gtk::Notebook{
                 #[name="tabs"]
                 TimeView {
