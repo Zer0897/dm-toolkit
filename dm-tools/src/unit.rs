@@ -134,7 +134,7 @@ where
     }
 
     pub fn redistribute(&mut self) -> Result<(), CountError> {
-        // Assumed `self.units` is sorted
+        // Assuming `self.units` is sorted
         let units = self.units.clone();
         for (i, unit) in units.iter().enumerate() {
             let count = self.get_count(&unit)?;
@@ -163,6 +163,7 @@ where
         Ok(())
     }
 
+    /// Set count for all `units` to 0.
     pub fn reset(&mut self, units: &[T]) -> Result<(), CountError> {
         for unit in units.iter() {
             self.set_units(0, unit)?;
@@ -170,6 +171,8 @@ where
         Ok(())
     }
 
+    /// Set count of `unit` from given string.
+    /// A leading '+' or '-' will add or subtract the count instead.
     pub fn set_from_text(&mut self, value: &str, unit: &T) -> Result<(), CountError> {
         match value.parse::<i64>() {
             Ok(count) if value.starts_with('-') || value.starts_with('+') => {
