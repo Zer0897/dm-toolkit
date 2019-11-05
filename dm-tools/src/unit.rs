@@ -25,6 +25,10 @@ pub trait Unit:
         self.to_i64().expect("Error converting.")
     }
 
+    fn value_from_count(&self, count: i64) -> i64 {
+        self.value().saturating_mul(count)
+    }
+
     fn distribute_from(units: &[Self], value: usize) -> HashMap<Self, i64> {
         // Allocate space for all possible values that `value` could be distributed into.
         let mut choices: Vec<Option<(usize, Self)>> = Vec::with_capacity(value + 1);
@@ -105,7 +109,8 @@ where
     }
 
     pub fn add_units(&mut self, count: i64, unit: &T) -> Result<(), CountError> {
-        self.get_mut_count(unit).map(|v| *v += count)
+        self.get_mut_count(unit)
+            .map(|v| *v = v.saturating_add(count))
     }
 
     pub fn sub_units(&mut self, count: i64, unit: &T) -> Result<(), CountError> {
@@ -129,12 +134,12 @@ where
     }
 
     pub fn redistribute(&mut self) -> Result<(), CountError> {
-        // Assumed `self.units` is sorted
+        // Assuming `self.units` is sorted
         let units = self.units.clone();
         for (i, unit) in units.iter().enumerate() {
             let count = self.get_count(&unit)?;
             let result = units.get(i + 1).map(|next| {
-                let total = unit.value() * count;
+                let total = unit.value_from_count(count);
                 // Calculate how many of `next` units we need to either
                 // steal (negative) or add (positive).
                 let (quo, rem) = total.div_rem(&next.value());
@@ -145,7 +150,7 @@ where
             match result {
                 Some((next_count, next)) if next_count != 0 => {
                     self.add_units(next_count, &next)?;
-                    self.sub_units(next_count * next.value() / unit.value(), &unit)?;
+                    self.sub_units(next.value_from_count(next_count) / unit.value(), &unit)?;
                 }
                 // Last unit, can't steal anymore.
                 None if count.is_negative() => {
@@ -158,6 +163,7 @@ where
         Ok(())
     }
 
+    /// Set count for all `units` to 0.
     pub fn reset(&mut self, units: &[T]) -> Result<(), CountError> {
         for unit in units.iter() {
             self.set_units(0, unit)?;
@@ -165,25 +171,15 @@ where
         Ok(())
     }
 
-    // TODO Refactor
+    /// Set count of `unit` from given string.
+    /// A leading '+' or '-' will add or subtract the count instead.
     pub fn set_from_text(&mut self, value: &str, unit: &T) -> Result<(), CountError> {
-        if value.starts_with('-') || value.starts_with('+') {
-            if let Ok(count) = value[1..].parse::<i64>() {
-                match value.chars().nth(0).unwrap() {
-                    '-' => self.sub_units(count, unit)?,
-                    '+' => self.add_units(count, unit)?,
-                    _ => unreachable!(),
-                };
-            } else {
-                return Err(CountError::InvalidValue);
+        match value.parse::<i64>() {
+            Ok(count) if value.starts_with('-') || value.starts_with('+') => {
+                self.add_units(count, unit)
             }
-        } else {
-            if let Ok(count) = value.parse::<i64>() {
-                self.set_units(count, unit)?;
-            } else {
-                return Err(CountError::InvalidValue);
-            }
+            Ok(count) => self.set_units(count, unit),
+            Err(_) => Err(CountError::InvalidValue),
         }
-        Ok(())
     }
 }
