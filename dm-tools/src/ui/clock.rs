@@ -69,8 +69,10 @@ impl Widget for ClockDisplay {
 
 impl ClockDisplay {
     fn update_datetime(&mut self) {
-        self.label_date.set_markup(&self.date());
-        self.label_time.set_markup(&self.time());
+        self.label_date
+            .set_markup(&self.date().markup_bold().markup_fontsize(40));
+        self.label_time
+            .set_markup(&self.time().markup_bold().markup_fontsize(40));
     }
 
     fn time(&self) -> String {
@@ -80,7 +82,7 @@ impl ClockDisplay {
             .map(|count| format!("{:02}", count))
             .join(":");
 
-        text.markup_bold().markup_fontsize(40)
+        text
     }
 
     fn date(&self) -> String {
@@ -95,7 +97,7 @@ impl ClockDisplay {
         let years = self.model.count.get_count(&UnitTime::Year).expect("Years");
 
         let text = format!("{:02}/{:02}/{:02}", months + 1, days + 1, years);
-        text.markup_bold().markup_fontsize(40)
+        text
     }
 }
 
