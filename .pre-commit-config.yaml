@@ -5,9 +5,13 @@ repos:
     rev: v2.0.0
     hooks:
     -   id: trailing-whitespace
+        exclude: ^dnd-toolkit/src/assets/
     -   id: end-of-file-fixer
+        exclude: ^dnd-toolkit/src/assets/
     -   id: check-yaml
     -   id: check-added-large-files
+        exclude: ^dnd-toolkit/src/assets/
+
 -   repo: https://github.com/doublify/pre-commit-rust
     rev: master
     hooks:
